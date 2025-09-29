@@ -3,6 +3,8 @@ import 'package:flutter_practices/provider_practices/to_do/providers/todo_provid
 import 'package:provider/provider.dart';
 
 class HomeScreen extends StatefulWidget {
+  const HomeScreen({super.key});
+
   @override
   State<HomeScreen> createState() => _HomeScreenState();
 }

@@ -269,12 +269,14 @@ class _WelcomeScreenState extends State<WelcomeScreen>
 
   Widget? _getPreviewPiece(int row, int col) {
     // Show some chess pieces in the preview
-    if (row == 1)
+    if (row == 1) {
       return const Text('♟',
           style: TextStyle(fontSize: 12, color: Colors.black));
-    if (row == 6)
+    }
+    if (row == 6) {
       return const Text('♙',
           style: TextStyle(fontSize: 12, color: Colors.white));
+    }
     if (row == 0) {
       const pieces = ['♜', '♞', '♝', '♛', '♚', '♝', '♞', '♜'];
       return Text(pieces[col],

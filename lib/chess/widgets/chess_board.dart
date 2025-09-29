@@ -302,7 +302,7 @@ class _ChessBoardState extends State<ChessBoard> with TickerProviderStateMixin {
     final shadowColor =
         piece.color == PieceColor.white ? Colors.black : Colors.white;
 
-    return Container(
+    return SizedBox(
       width: double.infinity,
       height: double.infinity,
       child: Center(
