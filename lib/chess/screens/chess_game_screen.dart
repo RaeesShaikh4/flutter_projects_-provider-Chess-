@@ -1,12 +1,20 @@
 import 'package:flutter/material.dart';
 import '../models/piece.dart';
 import '../models/position.dart';
+import '../models/level.dart';
 import '../game/chess_game.dart';
-import '../ai/chess_ai.dart';
+import '../ai/level_chess_ai.dart';
 import '../widgets/chess_board.dart';
 
 class ChessGameScreen extends StatefulWidget {
-  const ChessGameScreen({super.key});
+  final ChessLevel? level;
+  final Function(bool)? onLevelComplete;
+
+  const ChessGameScreen({
+    super.key,
+    this.level,
+    this.onLevelComplete,
+  });
 
   @override
   State<ChessGameScreen> createState() => _ChessGameScreenState();
@@ -15,12 +23,13 @@ class ChessGameScreen extends StatefulWidget {
 class _ChessGameScreenState extends State<ChessGameScreen>
     with TickerProviderStateMixin {
   late ChessGame game;
-  late ChessAI ai;
+  late LevelChessAI ai;
   Position? selectedPosition;
   List<Position> validMoves = [];
   bool isAITurn = false;
   Position? lastMoveFrom;
   Position? lastMoveTo;
+  ChessLevel? currentLevel;
 
   // Animation controllers
   late AnimationController _fadeController;
@@ -36,7 +45,8 @@ class _ChessGameScreenState extends State<ChessGameScreen>
   void initState() {
     super.initState();
     game = ChessGame();
-    ai = SimpleChessAI();
+    currentLevel = widget.level;
+    ai = LevelChessAI.createAI(currentLevel?.aiDifficulty ?? 1);
 
     // Initialize animations
     _fadeController = AnimationController(
@@ -335,14 +345,31 @@ class _ChessGameScreenState extends State<ChessGameScreen>
                 size: 32,
               ),
               const SizedBox(width: 12),
-              Text(
-                'CHESS MASTER',
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.brown[700],
-                  letterSpacing: 2,
-                ),
+              Column(
+                children: [
+                  Text(
+                    currentLevel != null
+                        ? 'LEVEL ${currentLevel!.levelNumber}'
+                        : 'CHESS MASTER',
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.brown[700],
+                      letterSpacing: 2,
+                    ),
+                  ),
+                  if (currentLevel != null) ...[
+                    const SizedBox(height: 4),
+                    Text(
+                      currentLevel!.name,
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.brown[600],
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ],
               ),
             ],
           ),

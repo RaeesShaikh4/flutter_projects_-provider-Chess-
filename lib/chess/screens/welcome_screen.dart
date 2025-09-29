@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'chess_game_screen.dart';
+import 'level_selection_screen.dart';
 
 class WelcomeScreen extends StatefulWidget {
   const WelcomeScreen({super.key});
@@ -119,8 +120,8 @@ class _WelcomeScreenState extends State<WelcomeScreen>
 
                               const SizedBox(height: 60),
 
-                              // Play button
-                              _buildPlayButton(),
+                              // Play buttons
+                              _buildPlayButtons(),
 
                               const SizedBox(height: 30),
 
@@ -321,65 +322,128 @@ class _WelcomeScreenState extends State<WelcomeScreen>
     );
   }
 
-  Widget _buildPlayButton() {
+  Widget _buildPlayButtons() {
     return SlideTransition(
       position: Tween<Offset>(
         begin: const Offset(0, 0.3),
         end: Offset.zero,
       ).animate(_slideAnimation),
-      child: AnimatedBuilder(
-        animation: _pulseAnimation,
-        builder: (context, child) {
-          return Transform.scale(
-            scale: _pulseAnimation.value,
-            child: Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [Colors.brown[700]!, Colors.brown[800]!],
-                ),
-                borderRadius: BorderRadius.circular(30),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.brown[700]!.withOpacity(0.4),
-                    blurRadius: 15,
-                    offset: const Offset(0, 8),
+      child: Column(
+        children: [
+          // Quick Play button
+          AnimatedBuilder(
+            animation: _pulseAnimation,
+            builder: (context, child) {
+              return Transform.scale(
+                scale: _pulseAnimation.value,
+                child: Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [Colors.brown[700]!, Colors.brown[800]!],
+                    ),
+                    borderRadius: BorderRadius.circular(30),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.brown[700]!.withOpacity(0.4),
+                        blurRadius: 15,
+                        offset: const Offset(0, 8),
+                      ),
+                    ],
                   ),
-                ],
-              ),
-              child: Material(
-                color: Colors.transparent,
-                child: InkWell(
-                  onTap: _startGame,
-                  borderRadius: BorderRadius.circular(30),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 40, vertical: 16),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Icon(
-                          Icons.play_arrow,
-                          color: Colors.white,
-                          size: 28,
+                  child: Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      onTap: _startGame,
+                      borderRadius: BorderRadius.circular(30),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 40, vertical: 16),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(
+                              Icons.play_arrow,
+                              color: Colors.white,
+                              size: 28,
+                            ),
+                            const SizedBox(width: 12),
+                            const Text(
+                              'QUICK PLAY',
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                                letterSpacing: 1,
+                              ),
+                            ),
+                          ],
                         ),
-                        const SizedBox(width: 12),
-                        const Text(
-                          'PLAY CHESS',
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                            letterSpacing: 1,
-                          ),
-                        ),
-                      ],
+                      ),
                     ),
                   ),
                 ),
-              ),
-            ),
-          );
-        },
+              );
+            },
+          ),
+
+          const SizedBox(height: 16),
+
+          // Levels button
+          AnimatedBuilder(
+            animation: _pulseAnimation,
+            builder: (context, child) {
+              return Transform.scale(
+                scale: _pulseAnimation.value * 0.95 + 0.05,
+                child: Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [Colors.blue[600]!, Colors.blue[800]!],
+                    ),
+                    borderRadius: BorderRadius.circular(30),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.blue[600]!.withOpacity(0.4),
+                        blurRadius: 15,
+                        offset: const Offset(0, 8),
+                      ),
+                    ],
+                  ),
+                  child: Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      onTap: _startLevels,
+                      borderRadius: BorderRadius.circular(30),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 40, vertical: 16),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(
+                              Icons.emoji_events,
+                              color: Colors.white,
+                              size: 28,
+                            ),
+                            const SizedBox(width: 12),
+                            const Text(
+                              'LEVELS (100)',
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                                letterSpacing: 1,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
+        ],
       ),
     );
   }
@@ -453,6 +517,15 @@ class _WelcomeScreenState extends State<WelcomeScreen>
       context,
       MaterialPageRoute(
         builder: (context) => const ChessGameScreen(),
+      ),
+    );
+  }
+
+  void _startLevels() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const LevelSelectionScreen(),
       ),
     );
   }
