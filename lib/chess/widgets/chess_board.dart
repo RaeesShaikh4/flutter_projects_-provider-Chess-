@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../models/piece.dart';
 import '../models/position.dart';
 import '../game/chess_game.dart';
@@ -66,23 +67,23 @@ class _ChessBoardState extends State<ChessBoard> with TickerProviderStateMixin {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(12.r),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.3),
-            blurRadius: 20,
-            offset: const Offset(0, 10),
+            blurRadius: 20.r,
+            offset: Offset(0, 10.h),
           ),
         ],
       ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(12),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(12.r),
         child: AspectRatio(
           aspectRatio: 1.0,
           child: Container(
             decoration: BoxDecoration(
-              border: Border.all(color: Colors.brown[800]!, width: 3),
-              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Colors.brown[800]!, width: 3.w),
+              borderRadius: BorderRadius.circular(12.r),
             ),
             child: GridView.builder(
               physics: const NeverScrollableScrollPhysics(),
@@ -223,16 +224,16 @@ class _ChessBoardState extends State<ChessBoard> with TickerProviderStateMixin {
           child: Transform.scale(
             scale: _pulseAnimation.value,
             child: Container(
-              width: 20,
-              height: 20,
+              width: 20.w,
+              height: 20.h,
               decoration: BoxDecoration(
                 color: Colors.green.withOpacity(0.8),
                 shape: BoxShape.circle,
                 boxShadow: [
                   BoxShadow(
                     color: Colors.green.withOpacity(0.5),
-                    blurRadius: 8,
-                    spreadRadius: 2,
+                    blurRadius: 8.r,
+                    spreadRadius: 2.r,
                   ),
                 ],
               ),
@@ -249,12 +250,12 @@ class _ChessBoardState extends State<ChessBoard> with TickerProviderStateMixin {
       builder: (context, child) {
         return Container(
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(4),
+            borderRadius: BorderRadius.circular(4.r),
             boxShadow: [
               BoxShadow(
                 color: Colors.yellow.withOpacity(_glowAnimation.value * 0.8),
-                blurRadius: 15,
-                spreadRadius: 3,
+                blurRadius: 15.r,
+                spreadRadius: 3.r,
               ),
             ],
           ),
@@ -309,14 +310,14 @@ class _ChessBoardState extends State<ChessBoard> with TickerProviderStateMixin {
         child: AnimatedDefaultTextStyle(
           duration: const Duration(milliseconds: 200),
           style: TextStyle(
-            fontSize: isDragging ? 28 : 24,
+            fontSize: isDragging ? 28.sp : 24.sp,
             color: textColor,
             fontWeight: FontWeight.bold,
             shadows: [
               Shadow(
                 color: shadowColor.withOpacity(0.5),
-                offset: const Offset(1, 1),
-                blurRadius: 2,
+                offset: Offset(1.w, 1.h),
+                blurRadius: 2.r,
               ),
             ],
           ),

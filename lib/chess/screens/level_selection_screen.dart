@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../models/level.dart';
 import 'chess_game_screen.dart';
 
@@ -78,7 +79,7 @@ class _LevelSelectionScreenState extends State<LevelSelectionScreen>
         ),
         child: SafeArea(
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+            padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 20.h),
             child: AnimatedBuilder(
               animation: Listenable.merge([
                 _fadeAnimation,
@@ -93,12 +94,12 @@ class _LevelSelectionScreenState extends State<LevelSelectionScreen>
                       // Header
                       _buildHeader(),
 
-                      const SizedBox(height: 20),
+                      SizedBox(height: 20.h),
 
                       // Progress indicator
                       _buildProgressIndicator(),
 
-                      const SizedBox(height: 20),
+                      SizedBox(height: 20.h),
 
                       // Level grid
                       Expanded(
@@ -131,9 +132,9 @@ class _LevelSelectionScreenState extends State<LevelSelectionScreen>
           Icon(
             Icons.sports_esports,
             color: Colors.brown[700],
-            size: 32,
+            size: 32.sp,
           ),
-          const SizedBox(width: 12),
+          SizedBox(width: 12.w),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -141,7 +142,7 @@ class _LevelSelectionScreenState extends State<LevelSelectionScreen>
                 Text(
                   'CHESS LEVELS',
                   style: TextStyle(
-                    fontSize: 24,
+                    fontSize: 24.sp,
                     fontWeight: FontWeight.bold,
                     color: Colors.brown[700],
                     letterSpacing: 2,
@@ -150,7 +151,7 @@ class _LevelSelectionScreenState extends State<LevelSelectionScreen>
                 Text(
                   'Choose your challenge',
                   style: TextStyle(
-                    fontSize: 14,
+                    fontSize: 14.sp,
                     color: Colors.brown[600],
                   ),
                 ),
@@ -169,17 +170,17 @@ class _LevelSelectionScreenState extends State<LevelSelectionScreen>
         end: Offset.zero,
       ).animate(_slideAnimation),
       child: Container(
-        padding: const EdgeInsets.all(20),
+        padding: EdgeInsets.all(20.r),
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [Colors.white, Colors.grey[50]!],
           ),
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(16.r),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withOpacity(0.1),
-              blurRadius: 10,
-              offset: const Offset(0, 5),
+              blurRadius: 10.r,
+              offset: Offset(0, 5.h),
             ),
           ],
         ),
@@ -191,7 +192,7 @@ class _LevelSelectionScreenState extends State<LevelSelectionScreen>
                 Text(
                   'Progress',
                   style: TextStyle(
-                    fontSize: 16,
+                    fontSize: 16.sp,
                     fontWeight: FontWeight.bold,
                     color: Colors.brown[700],
                   ),
@@ -199,25 +200,25 @@ class _LevelSelectionScreenState extends State<LevelSelectionScreen>
                 Text(
                   '$_unlockedLevel / 100',
                   style: TextStyle(
-                    fontSize: 16,
+                    fontSize: 16.sp,
                     fontWeight: FontWeight.bold,
                     color: Colors.brown[600],
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 12),
+            SizedBox(height: 12.h),
             LinearProgressIndicator(
               value: _unlockedLevel / 100,
               backgroundColor: Colors.brown[200],
               valueColor: AlwaysStoppedAnimation<Color>(Colors.brown[600]!),
-              minHeight: 8,
+              minHeight: 8.h,
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: 8.h),
             Text(
               '${(_unlockedLevel / 100 * 100).round()}% Complete',
               style: TextStyle(
-                fontSize: 12,
+                fontSize: 12.sp,
                 color: Colors.brown[600],
               ),
             ),
@@ -234,11 +235,11 @@ class _LevelSelectionScreenState extends State<LevelSelectionScreen>
         end: Offset.zero,
       ).animate(_slideAnimation),
       child: GridView.builder(
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 5,
           childAspectRatio: 1,
-          crossAxisSpacing: 8,
-          mainAxisSpacing: 8,
+          crossAxisSpacing: 8.w,
+          mainAxisSpacing: 8.h,
         ),
         itemCount: _levels.length,
         itemBuilder: (context, index) {
@@ -267,55 +268,55 @@ class _LevelSelectionScreenState extends State<LevelSelectionScreen>
                   end: Alignment.bottomRight,
                   colors: _getLevelColors(level, isUnlocked, isCompleted),
                 ),
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(12.r),
                 boxShadow: [
                   BoxShadow(
                     color: Colors.black.withOpacity(0.1),
-                    blurRadius: 8,
-                    offset: const Offset(0, 4),
+                    blurRadius: 8.r,
+                    offset: Offset(0, 4.h),
                   ),
                 ],
                 border: Border.all(
                   color: isUnlocked ? Colors.brown[400]! : Colors.grey[300]!,
-                  width: 2,
+                  width: 2.w,
                 ),
               ),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   if (isCompleted)
-                    const Icon(
+                    Icon(
                       Icons.check_circle,
                       color: Colors.white,
-                      size: 20,
+                      size: 20.sp,
                     )
                   else if (isUnlocked)
                     Icon(
                       Icons.play_arrow,
                       color: Colors.white,
-                      size: 20,
+                      size: 20.sp,
                     )
                   else
                     Icon(
                       Icons.lock,
                       color: Colors.grey[400],
-                      size: 20,
+                      size: 20.sp,
                     ),
-                  const SizedBox(height: 4),
+                  SizedBox(height: 4.h),
                   Text(
                     '${level.levelNumber}',
                     style: TextStyle(
-                      fontSize: 16,
+                      fontSize: 16.sp,
                       fontWeight: FontWeight.bold,
                       color: isUnlocked ? Colors.white : Colors.grey[400],
                     ),
                   ),
                   if (isUnlocked) ...[
-                    const SizedBox(height: 2),
+                    SizedBox(height: 2.h),
                     Text(
                       level.difficultyText,
-                      style: const TextStyle(
-                        fontSize: 8,
+                      style: TextStyle(
+                        fontSize: 8.sp,
                         color: Colors.white70,
                       ),
                     ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'chess_game_screen.dart';
 import 'level_selection_screen.dart';
 
@@ -86,7 +87,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
         ),
         child: SafeArea(
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+            padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 20.h),
             child: AnimatedBuilder(
               animation: Listenable.merge([
                 _fadeAnimation,
@@ -106,28 +107,33 @@ class _WelcomeScreenState extends State<WelcomeScreen>
 
                       // Main content
                       Expanded(
-                        child: Center(
-                          child: Column(
-                            // mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              // Chess board preview
-                              _buildChessPreview(),
+                        child: SingleChildScrollView(
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(vertical: 20.h),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                // Chess board preview
+                                _buildChessPreview(),
 
-                              const SizedBox(height: 40),
+                                SizedBox(height: 30.h),
 
-                              // Title and description
-                              _buildTitleSection(),
+                                // Title and description
+                                _buildTitleSection(),
 
-                              const SizedBox(height: 60),
+                                SizedBox(height: 40.h),
 
-                              // Play buttons
-                              _buildPlayButtons(),
+                                // Play buttons
+                                _buildPlayButtons(),
 
-                              const SizedBox(height: 30),
+                                SizedBox(height: 20.h),
 
-                              // Features
-                              _buildFeatures(),
-                            ],
+                                // Features
+                                _buildFeatures(),
+                                
+                                SizedBox(height: 20.h),
+                              ],
+                            ),
                           ),
                         ),
                       ),
@@ -155,13 +161,13 @@ class _WelcomeScreenState extends State<WelcomeScreen>
             Icon(
               Icons.sports_esports,
               color: Colors.brown[700],
-              size: 32,
+              size: 32.sp,
             ),
-            const SizedBox(width: 12),
+            SizedBox(width: 12.w),
             Text(
               'CHESS MASTER',
               style: TextStyle(
-                fontSize: 24,
+                fontSize: 24.sp,
                 fontWeight: FontWeight.bold,
                 color: Colors.brown[700],
                 letterSpacing: 2,
@@ -174,15 +180,15 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                 return Transform.scale(
                   scale: _pulseAnimation.value,
                   child: Container(
-                    padding: const EdgeInsets.all(8),
+                    padding: EdgeInsets.all(8.r),
                     decoration: BoxDecoration(
                       color: Colors.brown[700]!.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(20),
+                      borderRadius: BorderRadius.circular(20.r),
                     ),
                     child: Icon(
                       Icons.settings,
                       color: Colors.brown[700],
-                      size: 20,
+                      size: 20.sp,
                     ),
                   ),
                 );
@@ -206,20 +212,20 @@ class _WelcomeScreenState extends State<WelcomeScreen>
           return Transform.scale(
             scale: _scaleAnimation.value,
             child: Container(
-              width: 200,
-              height: 200,
+              width: 180.w,
+              height: 180.h,
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: BorderRadius.circular(20.r),
                 boxShadow: [
                   BoxShadow(
                     color: Colors.black.withOpacity(0.3),
-                    blurRadius: 20,
-                    offset: const Offset(0, 10),
+                    blurRadius: 20.r,
+                    offset: Offset(0, 10.h),
                   ),
                 ],
               ),
               child: ClipRRect(
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: BorderRadius.circular(20.r),
                 child: Container(
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
@@ -249,7 +255,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                               isLight ? Colors.brown[100] : Colors.brown[400],
                           border: Border.all(
                             color: Colors.brown[600]!.withOpacity(0.3),
-                            width: 0.5,
+                            width: 0.5.w,
                           ),
                         ),
                         child: Center(
@@ -270,22 +276,22 @@ class _WelcomeScreenState extends State<WelcomeScreen>
   Widget? _getPreviewPiece(int row, int col) {
     // Show some chess pieces in the preview
     if (row == 1) {
-      return const Text('♟',
-          style: TextStyle(fontSize: 12, color: Colors.black));
+      return Text('♟',
+          style: TextStyle(fontSize: 12.sp, color: Colors.black));
     }
     if (row == 6) {
-      return const Text('♙',
-          style: TextStyle(fontSize: 12, color: Colors.white));
+      return Text('♙',
+          style: TextStyle(fontSize: 12.sp, color: Colors.white));
     }
     if (row == 0) {
       const pieces = ['♜', '♞', '♝', '♛', '♚', '♝', '♞', '♜'];
       return Text(pieces[col],
-          style: const TextStyle(fontSize: 12, color: Colors.black));
+          style: TextStyle(fontSize: 12.sp, color: Colors.black));
     }
     if (row == 7) {
       const pieces = ['♖', '♘', '♗', '♕', '♔', '♗', '♘', '♖'];
       return Text(pieces[col],
-          style: const TextStyle(fontSize: 12, color: Colors.white));
+          style: TextStyle(fontSize: 12.sp, color: Colors.white));
     }
     return null;
   }
@@ -301,24 +307,24 @@ class _WelcomeScreenState extends State<WelcomeScreen>
           Text(
             'Welcome to Chess Master',
             style: TextStyle(
-              fontSize: 32,
+              fontSize: 28.sp,
               fontWeight: FontWeight.bold,
               color: Colors.brown[800],
               letterSpacing: 1,
             ),
             textAlign: TextAlign.center,
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 12.h),
           Text(
             'Challenge the AI in a game of strategy and skill',
             style: TextStyle(
-              fontSize: 18,
+              fontSize: 16.sp,
               color: Colors.brown[600],
               height: 1.4,
             ),
             textAlign: TextAlign.center,
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 12.h),
         ],
       ),
     );
@@ -343,12 +349,12 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                     gradient: LinearGradient(
                       colors: [Colors.brown[700]!, Colors.brown[800]!],
                     ),
-                    borderRadius: BorderRadius.circular(30),
+                    borderRadius: BorderRadius.circular(30.r),
                     boxShadow: [
                       BoxShadow(
                         color: Colors.brown[700]!.withOpacity(0.4),
-                        blurRadius: 15,
-                        offset: const Offset(0, 8),
+                        blurRadius: 15.r,
+                        offset: Offset(0, 8.h),
                       ),
                     ],
                   ),
@@ -356,23 +362,23 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                     color: Colors.transparent,
                     child: InkWell(
                       onTap: _startGame,
-                      borderRadius: BorderRadius.circular(30),
+                      borderRadius: BorderRadius.circular(30.r),
                       child: Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 40, vertical: 16),
+                        padding: EdgeInsets.symmetric(
+                            horizontal: 32.w, vertical: 14.h),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            const Icon(
+                            Icon(
                               Icons.play_arrow,
                               color: Colors.white,
-                              size: 28,
+                              size: 28.sp,
                             ),
-                            const SizedBox(width: 12),
-                            const Text(
+                            SizedBox(width: 12.w),
+                            Text(
                               'QUICK PLAY',
                               style: TextStyle(
-                                fontSize: 20,
+                                fontSize: 18.sp,
                                 fontWeight: FontWeight.bold,
                                 color: Colors.white,
                                 letterSpacing: 1,
@@ -388,7 +394,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
             },
           ),
 
-          const SizedBox(height: 16),
+          SizedBox(height: 16.h),
 
           // Levels button
           AnimatedBuilder(
@@ -401,12 +407,12 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                     gradient: LinearGradient(
                       colors: [Colors.blue[600]!, Colors.blue[800]!],
                     ),
-                    borderRadius: BorderRadius.circular(30),
+                    borderRadius: BorderRadius.circular(30.r),
                     boxShadow: [
                       BoxShadow(
                         color: Colors.blue[600]!.withOpacity(0.4),
-                        blurRadius: 15,
-                        offset: const Offset(0, 8),
+                        blurRadius: 15.r,
+                        offset: Offset(0, 8.h),
                       ),
                     ],
                   ),
@@ -414,23 +420,23 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                     color: Colors.transparent,
                     child: InkWell(
                       onTap: _startLevels,
-                      borderRadius: BorderRadius.circular(30),
+                      borderRadius: BorderRadius.circular(30.r),
                       child: Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 40, vertical: 16),
+                        padding: EdgeInsets.symmetric(
+                            horizontal: 32.w, vertical: 14.h),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            const Icon(
+                            Icon(
                               Icons.emoji_events,
                               color: Colors.white,
-                              size: 28,
+                              size: 28.sp,
                             ),
-                            const SizedBox(width: 12),
-                            const Text(
+                            SizedBox(width: 12.w),
+                            Text(
                               'LEVELS (100)',
                               style: TextStyle(
-                                fontSize: 20,
+                                fontSize: 18.sp,
                                 fontWeight: FontWeight.bold,
                                 color: Colors.white,
                                 letterSpacing: 1,
@@ -457,7 +463,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
         end: Offset.zero,
       ).animate(_slideAnimation),
       child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 40),
+        margin: EdgeInsets.symmetric(horizontal: 20.w),
         child: Column(
           children: [
             _buildFeatureItem(Icons.smart_toy, 'AI Opponent',
@@ -470,13 +476,13 @@ class _WelcomeScreenState extends State<WelcomeScreen>
 
   Widget _buildFeatureItem(IconData icon, String title, String description) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
       decoration: BoxDecoration(
         color: Colors.white.withOpacity(0.7),
-        borderRadius: BorderRadius.circular(15),
+        borderRadius: BorderRadius.circular(15.r),
         border: Border.all(
           color: Colors.brown[300]!,
-          width: 1,
+          width: 1.w,
         ),
       ),
       child: Row(
@@ -486,7 +492,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
             color: Colors.brown[700],
             size: 20,
           ),
-          const SizedBox(width: 12),
+          SizedBox(width: 12.w),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -494,7 +500,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                 Text(
                   title,
                   style: TextStyle(
-                    fontSize: 14,
+                    fontSize: 14.sp,
                     fontWeight: FontWeight.bold,
                     color: Colors.brown[700],
                   ),
@@ -502,7 +508,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                 Text(
                   description,
                   style: TextStyle(
-                    fontSize: 12,
+                    fontSize: 12.sp,
                     color: Colors.brown[600],
                   ),
                 ),

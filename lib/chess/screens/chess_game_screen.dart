@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../models/piece.dart';
 import '../models/position.dart';
 import '../models/level.dart';
@@ -265,7 +266,7 @@ class _ChessGameScreenState extends State<ChessGameScreen>
                         child: Transform.scale(
                           scale: _pulseAnimation.value * 0.01 + 0.99,
                           child: Padding(
-                            padding: const EdgeInsets.all(20),
+                            padding: EdgeInsets.all(20.r),
                             child: ChessBoard(
                               game: game,
                               onMove: _onMove,
@@ -309,8 +310,8 @@ class _ChessGameScreenState extends State<ChessGameScreen>
 
   Widget _buildGameStatus() {
     return Container(
-      margin: const EdgeInsets.fromLTRB(20, 5, 20, 20),
-      padding: const EdgeInsets.all(24),
+      margin: EdgeInsets.fromLTRB(20.w, 5.h, 20.w, 20.h),
+      padding: EdgeInsets.all(24.r),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
@@ -320,17 +321,17 @@ class _ChessGameScreenState extends State<ChessGameScreen>
             Colors.grey[50]!,
           ],
         ),
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(20.r),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.15),
-            blurRadius: 15,
-            offset: const Offset(0, 8),
+            blurRadius: 15.r,
+            offset: Offset(0, 8.h),
           ),
         ],
         border: Border.all(
           color: _getStatusColor().withOpacity(0.3),
-          width: 2,
+          width: 2.w,
         ),
       ),
       child: Column(
@@ -342,9 +343,9 @@ class _ChessGameScreenState extends State<ChessGameScreen>
               Icon(
                 Icons.sports_esports,
                 color: Colors.brown[700],
-                size: 32,
+                size: 32.sp,
               ),
-              const SizedBox(width: 12),
+              SizedBox(width: 12.w),
               Column(
                 children: [
                   Text(
@@ -352,18 +353,18 @@ class _ChessGameScreenState extends State<ChessGameScreen>
                         ? 'LEVEL ${currentLevel!.levelNumber}'
                         : 'CHESS MASTER',
                     style: TextStyle(
-                      fontSize: 24,
+                      fontSize: 24.sp,
                       fontWeight: FontWeight.bold,
                       color: Colors.brown[700],
                       letterSpacing: 2,
                     ),
                   ),
                   if (currentLevel != null) ...[
-                    const SizedBox(height: 4),
+                    SizedBox(height: 4.h),
                     Text(
                       currentLevel!.name,
                       style: TextStyle(
-                        fontSize: 14,
+                        fontSize: 14.sp,
                         color: Colors.brown[600],
                         fontWeight: FontWeight.w500,
                       ),
@@ -373,14 +374,14 @@ class _ChessGameScreenState extends State<ChessGameScreen>
               ),
             ],
           ),
-          const SizedBox(height: 20),
+          SizedBox(height: 20.h),
           // Game status
           AnimatedBuilder(
             animation: _glowAnimation,
             builder: (context, child) {
               return Container(
                 padding:
-                    const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                    EdgeInsets.symmetric(horizontal: 20.w, vertical: 12.h),
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: [
@@ -390,16 +391,16 @@ class _ChessGameScreenState extends State<ChessGameScreen>
                           .withOpacity(0.05 + _glowAnimation.value * 0.05),
                     ],
                   ),
-                  borderRadius: BorderRadius.circular(25),
+                  borderRadius: BorderRadius.circular(25.r),
                   border: Border.all(
                     color: _getStatusColor().withOpacity(0.6),
-                    width: 2,
+                    width: 2.w,
                   ),
                   boxShadow: [
                     BoxShadow(
                       color: _getStatusColor().withOpacity(0.3),
-                      blurRadius: 10,
-                      offset: const Offset(0, 4),
+                      blurRadius: 10.r,
+                      offset: Offset(0, 4.h),
                     ),
                   ],
                 ),
@@ -407,27 +408,27 @@ class _ChessGameScreenState extends State<ChessGameScreen>
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     if (isAITurn) ...[
-                      const SizedBox(
-                        width: 24,
-                        height: 24,
+                      SizedBox(
+                        width: 24.w,
+                        height: 24.h,
                         child: CircularProgressIndicator(
-                          strokeWidth: 3,
+                          strokeWidth: 3.w,
                           valueColor:
                               AlwaysStoppedAnimation<Color>(Colors.brown),
                         ),
                       ),
-                      const SizedBox(width: 16),
+                      SizedBox(width: 16.w),
                     ],
                     Icon(
                       _getStatusIcon(),
                       color: _getStatusColor(),
-                      size: 28,
+                      size: 28.sp,
                     ),
-                    const SizedBox(width: 12),
+                    SizedBox(width: 12.w),
                     Text(
                       _getGameStatusText(),
                       style: TextStyle(
-                        fontSize: 20,
+                        fontSize: 20.sp,
                         fontWeight: FontWeight.bold,
                         color: _getStatusColor(),
                       ),
@@ -444,7 +445,7 @@ class _ChessGameScreenState extends State<ChessGameScreen>
 
   Widget _buildAnimatedControls() {
     return Container(
-      padding: const EdgeInsets.fromLTRB(20, 10, 20, 20),
+      padding: EdgeInsets.fromLTRB(20.w, 10.h, 20.w, 20.h),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -477,9 +478,9 @@ class _ChessGameScreenState extends State<ChessGameScreen>
             style: ElevatedButton.styleFrom(
               backgroundColor: color,
               foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+              padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 12.h),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(25),
+                borderRadius: BorderRadius.circular(25.r),
               ),
               elevation: 8,
               shadowColor: color.withOpacity(0.5),
@@ -627,44 +628,45 @@ class _AnimatedDialogState extends State<AnimatedDialog>
             scale: _scaleAnimation,
             child: AlertDialog(
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: BorderRadius.circular(20.r),
               ),
               title: Row(
                 children: [
-                  Icon(widget.icon, color: widget.dialogColor, size: 32),
-                  const SizedBox(width: 12),
+                  Icon(widget.icon, color: widget.dialogColor, size: 32.sp),
+                  SizedBox(width: 12.w),
                   Expanded(
                     child: Text(
                       widget.isInfo ? 'Game Info' : 'Game Over',
                       style: TextStyle(
                         color: widget.dialogColor,
                         fontWeight: FontWeight.bold,
+                        fontSize: 18.sp,
                       ),
                     ),
                   ),
                 ],
               ),
               content: widget.isInfo
-                  ? const Column(
+                  ? Column(
                       mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('How to play:'),
-                        SizedBox(height: 8),
-                        Text('• Tap a piece to select it'),
-                        Text('• Tap a valid move square to move'),
-                        Text('• Drag and drop pieces to move'),
-                        Text('• Green circles show valid moves'),
-                        SizedBox(height: 16),
-                        Text('Game rules:'),
-                        Text('• Standard chess rules apply'),
-                        Text('• AI plays as black pieces'),
-                        Text('• You play as white pieces'),
+                        Text('How to play:', style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.bold)),
+                        SizedBox(height: 8.h),
+                        Text('• Tap a piece to select it', style: TextStyle(fontSize: 14.sp)),
+                        Text('• Tap a valid move square to move', style: TextStyle(fontSize: 14.sp)),
+                        Text('• Drag and drop pieces to move', style: TextStyle(fontSize: 14.sp)),
+                        Text('• Green circles show valid moves', style: TextStyle(fontSize: 14.sp)),
+                        SizedBox(height: 16.h),
+                        Text('Game rules:', style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.bold)),
+                        Text('• Standard chess rules apply', style: TextStyle(fontSize: 14.sp)),
+                        Text('• AI plays as black pieces', style: TextStyle(fontSize: 14.sp)),
+                        Text('• You play as white pieces', style: TextStyle(fontSize: 14.sp)),
                       ],
                     )
                   : Text(
                       widget.message,
-                      style: const TextStyle(fontSize: 16),
+                      style: TextStyle(fontSize: 16.sp),
                     ),
               actions: [
                 if (widget.onNewGame != null)
