@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../models/level.dart';
 import '../database/game_database.dart';
+import '../utils/custom_toast.dart';
 import 'chess_game_screen.dart';
 
 class LevelSelectionScreen extends StatefulWidget {
@@ -47,7 +48,7 @@ class _LevelSelectionScreenState extends State<LevelSelectionScreen>
     _slideAnimation = Tween<double>(begin: 50.0, end: 0.0).animate(
       CurvedAnimation(parent: _slideController, curve: Curves.easeOutCubic),
     );
-    _pulseAnimation = Tween<double>(begin: 0.95, end: 1.05).animate(
+    _pulseAnimation = Tween<double>(begin: 0.98, end: 1.02).animate(
       CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
     );
 
@@ -103,9 +104,10 @@ class _LevelSelectionScreenState extends State<LevelSelectionScreen>
                   child: Column(
                     children: [
                       // Header
+                      SizedBox(height: 10.h),
                       _buildHeader(),
                           
-                      SizedBox(height: 20.h),
+                      SizedBox(height: 10.h),
                           
                       // Progress indicator
                       _buildProgressIndicator(),
@@ -116,9 +118,6 @@ class _LevelSelectionScreenState extends State<LevelSelectionScreen>
                       Expanded(
                         child: _buildLevelGrid(),
                       ),
-
-                      // Temporary debug button
-                      _buildDebugButton(),
 
                       SizedBox(height: 20.h),
                     ],
@@ -213,13 +212,55 @@ class _LevelSelectionScreenState extends State<LevelSelectionScreen>
                     color: Colors.brown[700],
                   ),
                 ),
-                Text(
-                  '$_unlockedLevel / 100',
-                  style: TextStyle(
-                    fontSize: 16.sp,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.brown[600],
-                  ),
+                Row(
+                  children: [
+                    Text(
+                      '$_unlockedLevel / 100',
+                      style: TextStyle(
+                        fontSize: 16.sp,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.brown[600],
+                      ),
+                    ),
+                    SizedBox(width: 8.w),
+                    // Reset button integrated into progress indicator
+                    GestureDetector(
+                      onTap: () async {
+                        print('DEBUG: Reset button pressed from progress indicator');
+                        await _database.resetProgress();
+                        await _loadUnlockedLevel();
+                        
+                        CustomToast.error(context, "Progress reset successfully!");
+                      },
+                      child: Container(
+                        padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
+                        decoration: BoxDecoration(
+                          color: Colors.red[50],
+                          borderRadius: BorderRadius.circular(12.r),
+                          border: Border.all(color: Colors.red[300]!, width: 1.w),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.refresh,
+                              size: 14.sp,
+                              color: Colors.red[600],
+                            ),
+                            SizedBox(width: 4.w),
+                            Text(
+                              'Reset',
+                              style: TextStyle(
+                                fontSize: 12.sp,
+                                color: Colors.red[600],
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -250,14 +291,14 @@ class _LevelSelectionScreenState extends State<LevelSelectionScreen>
         begin: const Offset(0, 0.1),
         end: Offset.zero,
       ).animate(_slideAnimation),
-      child: Padding(
-        padding: EdgeInsets.only(top: 5.h, bottom: 10.h),
-        child: GridView.builder(
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 5.h),
+          child: GridView.builder(
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 5,
-            childAspectRatio: 1.1,
-            crossAxisSpacing: 6.w,
-            mainAxisSpacing: 6.h,
+            childAspectRatio: 1.0,
+            crossAxisSpacing: 4.w,
+            mainAxisSpacing: 4.h,
           ),
           itemCount: _levels.length,
           itemBuilder: (context, index) {
@@ -276,71 +317,75 @@ class _LevelSelectionScreenState extends State<LevelSelectionScreen>
     return AnimatedBuilder(
       animation: _pulseAnimation,
       builder: (context, child) {
-        return Transform.scale(
-          scale: isUnlocked ? _pulseAnimation.value : 1.0,
-          child: GestureDetector(
-            onTap: isUnlocked ? () => _startLevel(level) : null,
-            child: Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: _getLevelColors(level, isUnlocked, isCompleted),
-                ),
-                borderRadius: BorderRadius.circular(12.r),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
-                    blurRadius: 8.r,
-                    offset: Offset(0, 4.h),
+        return Container(
+          // Add padding to prevent clipping during scale animation
+          padding: EdgeInsets.all(2.r),
+          child: Transform.scale(
+            scale: isUnlocked ? _pulseAnimation.value : 1.0,
+            child: GestureDetector(
+              onTap: isUnlocked ? () => _startLevel(level) : null,
+              child: Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: _getLevelColors(level, isUnlocked, isCompleted),
                   ),
-                ],
-                border: Border.all(
-                  color: isUnlocked ? Colors.brown[400]! : Colors.grey[300]!,
-                  width: 2.w,
-                ),
-              ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  if (isCompleted)
-                    Icon(
-                      Icons.check_circle,
-                      color: Colors.white,
-                      size: 16.sp,
-                    )
-                  else if (isUnlocked)
-                    Icon(
-                      Icons.play_arrow,
-                      color: Colors.white,
-                      size: 16.sp,
-                    )
-                  else
-                    Icon(
-                      Icons.lock,
-                      color: Colors.grey[400],
-                      size: 16.sp,
-                    ),
-                  SizedBox(height: 2.h),
-                  Text(
-                    '${level.levelNumber}',
-                    style: TextStyle(
-                      fontSize: 14.sp,
-                      fontWeight: FontWeight.bold,
-                      color: isUnlocked ? Colors.white : Colors.grey[400],
-                    ),
-                  ),
-                  if (isUnlocked) ...[
-                    SizedBox(height: 1.h),
-                    Text(
-                      level.difficultyText,
-                      style: TextStyle(
-                        fontSize: 7.sp,
-                        color: Colors.white70,
-                      ),
+                  borderRadius: BorderRadius.circular(12.r),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.1),
+                      blurRadius: 8.r,
+                      offset: Offset(0, 4.h),
                     ),
                   ],
-                ],
+                  border: Border.all(
+                    color: isUnlocked ? Colors.brown[400]! : Colors.grey[300]!,
+                    width: 2.w,
+                  ),
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    if (isCompleted)
+                      Icon(
+                        Icons.check_circle,
+                        color: Colors.white,
+                        size: 16.sp,
+                      )
+                    else if (isUnlocked)
+                      Icon(
+                        Icons.play_arrow,
+                        color: Colors.white,
+                        size: 16.sp,
+                      )
+                    else
+                      Icon(
+                        Icons.lock,
+                        color: Colors.grey[400],
+                        size: 16.sp,
+                      ),
+                    SizedBox(height: 2.h),
+                    Text(
+                      '${level.levelNumber}',
+                      style: TextStyle(
+                        fontSize: 14.sp,
+                        fontWeight: FontWeight.bold,
+                        color: isUnlocked ? Colors.white : Colors.grey[400],
+                      ),
+                    ),
+                    if (isUnlocked) ...[
+                      SizedBox(height: 1.h),
+                      Text(
+                        level.difficultyText,
+                        style: TextStyle(
+                          fontSize: 7.sp,
+                          color: Colors.white70,
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
               ),
             ),
           ),
@@ -403,31 +448,5 @@ class _LevelSelectionScreenState extends State<LevelSelectionScreen>
       // Always refresh the level selection when returning from game
       _loadUnlockedLevel();
     });
-  }
-
-  Widget _buildDebugButton() {
-    return Container(
-      margin: EdgeInsets.symmetric(horizontal: 20.w),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          ElevatedButton(
-            onPressed: () async {
-              print('DEBUG: Resetting progress');
-              await _database.resetProgress();
-              await _loadUnlockedLevel();
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Progress reset!')),
-              );
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red[600],
-              foregroundColor: Colors.white,
-            ),
-            child: const Text('Reset Progress'),
-          ),
-        ],
-      ),
-    );
   }
 }

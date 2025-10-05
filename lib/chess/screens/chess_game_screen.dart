@@ -190,15 +190,17 @@ class _ChessGameScreenState extends State<ChessGameScreen>
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (context) => AnimatedDialog(
-        message: message,
-        dialogColor: dialogColor,
-        icon: dialogIcon,
-        onClose: () {
-          Navigator.of(context).pop();
-          Navigator.of(context).pop(); // Go back to level selection
-        },
-      ),
+      builder: (context) => playerWon 
+        ? _buildCongratulationsDialog()
+        : AnimatedDialog(
+            message: message,
+            dialogColor: dialogColor,
+            icon: dialogIcon,
+            onClose: () {
+              Navigator.of(context).pop();
+              Navigator.of(context).pop(); // Go back to level selection
+            },
+          ),
     );
   }
 
@@ -454,14 +456,6 @@ class _ChessGameScreenState extends State<ChessGameScreen>
             onPressed: _showGameInfo,
             color: Colors.brown[600]!,
           ),
-          SizedBox(width: 10.w),
-          _buildAnimatedButton(
-            icon: Icons.emoji_events,
-            iconColor: Colors.white,
-            label: 'Test Win',
-            onPressed: _testWin,
-            color: Colors.green[600]!,
-          ),
         ],
       ),
     );
@@ -565,12 +559,157 @@ class _ChessGameScreenState extends State<ChessGameScreen>
     );
   }
 
-  void _testWin() {
-    print('DEBUG: Test Win button pressed');
-    // Force a win scenario
-    game.gameState = GameState.checkmate;
-    game.currentPlayer = PieceColor.white; // White's turn = Black is checkmated = White wins
-    _showGameEndDialog();
+
+  Widget _buildCongratulationsDialog() {
+    return Dialog(
+      backgroundColor: Colors.transparent,
+      child: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Colors.brown[300]!,
+              Colors.brown[600]!,
+              Colors.brown[800]!,
+            ],
+          ),
+          borderRadius: BorderRadius.circular(25.r),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.brown.withOpacity(0.3),
+              blurRadius: 20.r,
+              offset: Offset(0, 10.h),
+            ),
+          ],
+        ),
+        child: Padding(
+          padding: EdgeInsets.all(30.r),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Animated trophy icon
+              TweenAnimationBuilder<double>(
+                duration: const Duration(milliseconds: 1000),
+                tween: Tween(begin: 0.0, end: 1.0),
+                builder: (context, value, child) {
+                  return Transform.scale(
+                    scale: value,
+                    child: Container(
+                      padding: EdgeInsets.all(20.r),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.2),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        Icons.emoji_events,
+                        size: 60.sp,
+                        color: Colors.white,
+                      ),
+                    ),
+                  );
+                },
+              ),
+              
+              SizedBox(height: 20.h),
+              
+              // Congratulations text
+              TweenAnimationBuilder<double>(
+                duration: const Duration(milliseconds: 800),
+                tween: Tween(begin: 0.0, end: 1.0),
+                builder: (context, value, child) {
+                  return Opacity(
+                    opacity: value,
+                    child: Transform.translate(
+                      offset: Offset(0, 20 * (1 - value)),
+                      child: Column(
+                        children: [
+                          Text(
+                            'CONGRATULATIONS!',
+                            style: TextStyle(
+                              fontSize: 28.sp,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                              letterSpacing: 2,
+                            ),
+                          ),
+                          SizedBox(height: 10.h),
+                          Text(
+                            'You won by checkmate!',
+                            style: TextStyle(
+                              fontSize: 18.sp,
+                              color: Colors.white.withOpacity(0.9),
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          SizedBox(height: 5.h),
+                          Text(
+                            'Level ${currentLevel?.levelNumber ?? 1} Completed!',
+                            style: TextStyle(
+                              fontSize: 16.sp,
+                              color: Colors.white.withOpacity(0.8),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              ),
+              
+              SizedBox(height: 30.h),
+              
+              // Continue button
+              TweenAnimationBuilder<double>(
+                duration: const Duration(milliseconds: 1200),
+                tween: Tween(begin: 0.0, end: 1.0),
+                builder: (context, value, child) {
+                  return Opacity(
+                    opacity: value,
+                    child: Transform.translate(
+                      offset: Offset(0, 30 * (1 - value)),
+                      child: Container(
+                        width: double.infinity,
+                        height: 50.h,
+                        child: ElevatedButton(
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                            Navigator.of(context).pop(); // Go back to level selection
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.white,
+                            foregroundColor: Colors.brown[700],
+                            elevation: 8,
+                            shadowColor: Colors.black.withOpacity(0.3),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(25.r),
+                            ),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.arrow_forward, size: 20.sp),
+                              SizedBox(width: 5.w),
+                              Text(
+                                'Continue to Next Level',
+                                style: TextStyle(
+                                  fontSize: 15.sp,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
 
