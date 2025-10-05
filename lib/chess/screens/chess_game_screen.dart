@@ -6,6 +6,7 @@ import '../models/level.dart';
 import '../game/chess_game.dart';
 import '../ai/level_chess_ai.dart';
 import '../widgets/chess_board.dart';
+import 'welcome_screen.dart';
 
 class ChessGameScreen extends StatefulWidget {
   final ChessLevel? level;
@@ -35,12 +36,8 @@ class _ChessGameScreenState extends State<ChessGameScreen>
   // Animation controllers
   late AnimationController _fadeController;
   late AnimationController _slideController;
-  late AnimationController _pulseController;
-  late AnimationController _glowController;
   late Animation<double> _fadeAnimation;
   late Animation<double> _slideAnimation;
-  late Animation<double> _pulseAnimation;
-  late Animation<double> _glowAnimation;
 
   @override
   void initState() {
@@ -49,21 +46,12 @@ class _ChessGameScreenState extends State<ChessGameScreen>
     currentLevel = widget.level;
     ai = LevelChessAI.createAI(currentLevel?.aiDifficulty ?? 1);
 
-    // Initialize animations
     _fadeController = AnimationController(
       duration: const Duration(milliseconds: 800),
       vsync: this,
     );
     _slideController = AnimationController(
       duration: const Duration(milliseconds: 600),
-      vsync: this,
-    );
-    _pulseController = AnimationController(
-      duration: const Duration(milliseconds: 1200),
-      vsync: this,
-    );
-    _glowController = AnimationController(
-      duration: const Duration(milliseconds: 2000),
       vsync: this,
     );
 
@@ -73,25 +61,15 @@ class _ChessGameScreenState extends State<ChessGameScreen>
     _slideAnimation = Tween<double>(begin: 50.0, end: 0.0).animate(
       CurvedAnimation(parent: _slideController, curve: Curves.easeOutCubic),
     );
-    _pulseAnimation = Tween<double>(begin: 0.8, end: 1.2).animate(
-      CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
-    );
-    _glowAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _glowController, curve: Curves.easeInOut),
-    );
 
     _fadeController.forward();
     _slideController.forward();
-    _pulseController.repeat(reverse: true);
-    _glowController.repeat(reverse: true);
   }
 
   @override
   void dispose() {
     _fadeController.dispose();
     _slideController.dispose();
-    _pulseController.dispose();
-    _glowController.dispose();
     super.dispose();
   }
 
@@ -169,13 +147,20 @@ class _ChessGameScreenState extends State<ChessGameScreen>
     String message;
     Color dialogColor;
     IconData dialogIcon;
+    bool playerWon = false;
 
     switch (game.gameState) {
       case GameState.checkmate:
-        message = game.currentPlayer == PieceColor.white
-            ? 'Black wins by checkmate!'
-            : 'White wins by checkmate!';
-        dialogColor = Colors.red;
+        // Player wins if the AI (black) is checkmated
+        // If it's Black's turn and Black is checkmated, White (player) wins
+        // If it's White's turn and White is checkmated, Black (AI) wins
+        playerWon = game.currentPlayer == PieceColor.black;
+        print('DEBUG: Checkmate detected. Current player: ${game.currentPlayer}');
+        print('DEBUG: Since currentPlayer is Black and Black is checkmated, White (player) wins: $playerWon');
+        message = playerWon
+            ? 'Congratulations! You won by checkmate!'
+            : 'AI wins by checkmate!';
+        dialogColor = playerWon ? Colors.green : Colors.red;
         dialogIcon = Icons.emoji_events;
         break;
       case GameState.stalemate:
@@ -192,6 +177,16 @@ class _ChessGameScreenState extends State<ChessGameScreen>
         return;
     }
 
+    // Call the level completion callback if provided
+    print('DEBUG: Game ended. playerWon: $playerWon, gameState: ${game.gameState}');
+    if (widget.onLevelComplete != null) {
+      print('DEBUG: Calling onLevelComplete with won: $playerWon');
+      widget.onLevelComplete!(playerWon);
+    } else {
+      print('DEBUG: onLevelComplete is null!');
+    }
+
+
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -199,11 +194,10 @@ class _ChessGameScreenState extends State<ChessGameScreen>
         message: message,
         dialogColor: dialogColor,
         icon: dialogIcon,
-        onNewGame: () {
+        onClose: () {
           Navigator.of(context).pop();
-          _resetGame();
+          Navigator.of(context).pop(); // Go back to level selection
         },
-        onClose: () => Navigator.of(context).pop(),
       ),
     );
   }
@@ -218,7 +212,6 @@ class _ChessGameScreenState extends State<ChessGameScreen>
       lastMoveTo = null;
     });
 
-    // Restart animations
     _fadeController.reset();
     _slideController.reset();
     _fadeController.forward();
@@ -228,6 +221,35 @@ class _ChessGameScreenState extends State<ChessGameScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar( 
+        backgroundColor: Colors.brown[100],
+        leading: IconButton(
+          onPressed: () {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const WelcomeScreen(),
+              ),
+            );
+          },
+          icon: const Icon(Icons.logout),
+          tooltip: 'Back to Welcome Screen',
+        ),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 10.0),
+            child: ElevatedButton.icon(
+              onPressed: _resetGame,
+              icon: const Icon(Icons.refresh, color: Colors.white,),
+              label: const Text('New Game'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.brown[700],
+                foregroundColor: Colors.white,
+              ),
+            ),
+          ),
+        ],
+      ),
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
@@ -245,28 +267,26 @@ class _ChessGameScreenState extends State<ChessGameScreen>
             animation: Listenable.merge([
               _fadeAnimation,
               _slideAnimation,
-              _pulseAnimation,
-              _glowAnimation,
             ]),
             builder: (context, child) {
               return FadeTransition(
                 opacity: _fadeAnimation,
                 child: SlideTransition(
                   position: Tween<Offset>(
-                    begin: const Offset(0, 0.1),
+                    begin: const Offset(0, 0.0),
                     end: Offset.zero,
                   ).animate(_slideAnimation),
                   child: Column(
                     children: [
-                      // Game status with animations
+                      SizedBox(height: 10.h),
+                      // Game status
                       _buildGameStatus(),
-
-                      // Chess board with animations
-                      Center(
-                        child: Transform.scale(
-                          scale: _pulseAnimation.value * 0.01 + 0.99,
+                  
+                      // Chess board
+                      Expanded(
+                        child: Center(
                           child: Padding(
-                            padding: EdgeInsets.all(20.r),
+                            padding: EdgeInsets.symmetric(horizontal: 20.r, vertical: 10.h),
                             child: ChessBoard(
                               game: game,
                               onMove: _onMove,
@@ -278,8 +298,8 @@ class _ChessGameScreenState extends State<ChessGameScreen>
                           ),
                         ),
                       ),
-
-                      // Animated game controls
+                  
+                      // Game controls
                       _buildAnimatedControls(),
                     ],
                   ),
@@ -289,29 +309,13 @@ class _ChessGameScreenState extends State<ChessGameScreen>
           ),
         ),
       ),
-      floatingActionButton: AnimatedBuilder(
-        animation: _pulseAnimation,
-        builder: (context, child) {
-          return Transform.scale(
-            scale: _pulseAnimation.value * 0.05 + 0.95,
-            child: FloatingActionButton.extended(
-              onPressed: _resetGame,
-              backgroundColor: Colors.brown[700],
-              foregroundColor: Colors.white,
-              icon: const Icon(Icons.refresh),
-              label: const Text('New Game'),
-              elevation: 8,
-            ),
-          );
-        },
-      ),
     );
   }
 
   Widget _buildGameStatus() {
     return Container(
-      margin: EdgeInsets.fromLTRB(20.w, 5.h, 20.w, 20.h),
-      padding: EdgeInsets.all(24.r),
+      margin: EdgeInsets.fromLTRB(20.w, 0.h, 20.w, 10.h),
+      padding: EdgeInsets.all(16.r),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
@@ -374,21 +378,17 @@ class _ChessGameScreenState extends State<ChessGameScreen>
               ),
             ],
           ),
-          SizedBox(height: 20.h),
+          SizedBox(height: 10.h),
           // Game status
-          AnimatedBuilder(
-            animation: _glowAnimation,
-            builder: (context, child) {
-              return Container(
+          Container(
+                margin: EdgeInsets.only(top: 5.h),
                 padding:
                     EdgeInsets.symmetric(horizontal: 20.w, vertical: 12.h),
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: [
-                      _getStatusColor()
-                          .withOpacity(0.1 + _glowAnimation.value * 0.1),
-                      _getStatusColor()
-                          .withOpacity(0.05 + _glowAnimation.value * 0.05),
+                      _getStatusColor().withOpacity(0.1),
+                      _getStatusColor().withOpacity(0.05),
                     ],
                   ),
                   borderRadius: BorderRadius.circular(25.r),
@@ -428,16 +428,14 @@ class _ChessGameScreenState extends State<ChessGameScreen>
                     Text(
                       _getGameStatusText(),
                       style: TextStyle(
-                        fontSize: 20.sp,
+                        fontSize: 16.sp,
                         fontWeight: FontWeight.bold,
                         color: _getStatusColor(),
                       ),
                     ),
                   ],
                 ),
-              );
-            },
-          ),
+          )
         ],
       ),
     );
@@ -445,15 +443,24 @@ class _ChessGameScreenState extends State<ChessGameScreen>
 
   Widget _buildAnimatedControls() {
     return Container(
-      padding: EdgeInsets.fromLTRB(20.w, 10.h, 20.w, 20.h),
+      padding: EdgeInsets.fromLTRB(20.w, 5.h, 20.w, 10.h),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           _buildAnimatedButton(
             icon: Icons.info_outline,
+            iconColor: Colors.white,
             label: 'Game Rules',
             onPressed: _showGameInfo,
             color: Colors.brown[600]!,
+          ),
+          SizedBox(width: 10.w),
+          _buildAnimatedButton(
+            icon: Icons.emoji_events,
+            iconColor: Colors.white,
+            label: 'Test Win',
+            onPressed: _testWin,
+            color: Colors.green[600]!,
           ),
         ],
       ),
@@ -465,29 +472,22 @@ class _ChessGameScreenState extends State<ChessGameScreen>
     required String label,
     required VoidCallback onPressed,
     required Color color,
+    required Color iconColor
   }) {
-    return AnimatedBuilder(
-      animation: _pulseAnimation,
-      builder: (context, child) {
-        return Transform.scale(
-          scale: _pulseAnimation.value * 0.05 + 0.95,
-          child: ElevatedButton.icon(
-            onPressed: onPressed,
-            icon: Icon(icon),
-            label: Text(label),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: color,
-              foregroundColor: Colors.white,
-              padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 12.h),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(25.r),
-              ),
-              elevation: 8,
-              shadowColor: color.withOpacity(0.5),
-            ),
-          ),
-        );
-      },
+    return ElevatedButton.icon(
+      onPressed: onPressed,
+      icon: Icon(icon, color: iconColor,),
+      label: Text(label),
+      style: ElevatedButton.styleFrom(
+        backgroundColor: color,
+        foregroundColor: Colors.white,
+        padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 12.h),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(25.r),
+        ),
+        elevation: 8,
+        shadowColor: color.withOpacity(0.5),
+      ),
     );
   }
 
@@ -560,18 +560,26 @@ class _ChessGameScreenState extends State<ChessGameScreen>
         dialogColor: Colors.blue,
         icon: Icons.info,
         isInfo: true,
-        onNewGame: null,
         onClose: () => Navigator.of(context).pop(),
       ),
     );
   }
+
+  void _testWin() {
+    print('DEBUG: Test Win button pressed');
+    // Force a win scenario
+    game.gameState = GameState.checkmate;
+    game.currentPlayer = PieceColor.white; // White's turn = Black is checkmated = White wins
+    _showGameEndDialog();
+  }
+
+
 }
 
 class AnimatedDialog extends StatefulWidget {
   final String message;
   final Color dialogColor;
   final IconData icon;
-  final VoidCallback? onNewGame;
   final VoidCallback onClose;
   final bool isInfo;
 
@@ -580,7 +588,6 @@ class AnimatedDialog extends StatefulWidget {
     required this.message,
     required this.dialogColor,
     required this.icon,
-    this.onNewGame,
     required this.onClose,
     this.isInfo = false,
   });
@@ -669,19 +676,9 @@ class _AnimatedDialogState extends State<AnimatedDialog>
                       style: TextStyle(fontSize: 16.sp),
                     ),
               actions: [
-                if (widget.onNewGame != null)
-                  ElevatedButton.icon(
-                    onPressed: widget.onNewGame,
-                    icon: const Icon(Icons.refresh),
-                    label: const Text('New Game'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.green,
-                      foregroundColor: Colors.white,
-                    ),
-                  ),
                 TextButton(
                   onPressed: widget.onClose,
-                  child: const Text('Close'),
+                  child: const Text('Continue'),
                 ),
               ],
             ),

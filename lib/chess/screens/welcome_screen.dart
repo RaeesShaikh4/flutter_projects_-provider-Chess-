@@ -127,11 +127,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                                 _buildPlayButtons(),
 
                                 SizedBox(height: 20.h),
-
-                                // Features
-                                _buildFeatures(),
-                                
-                                SizedBox(height: 20.h),
+ 
                               ],
                             ),
                           ),

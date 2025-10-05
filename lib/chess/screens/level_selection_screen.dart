@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../models/level.dart';
+import '../database/game_database.dart';
 import 'chess_game_screen.dart';
 
 class LevelSelectionScreen extends StatefulWidget {
@@ -19,12 +20,14 @@ class _LevelSelectionScreenState extends State<LevelSelectionScreen>
   late Animation<double> _slideAnimation;
   late Animation<double> _pulseAnimation;
 
-  int _unlockedLevel = 1; // This would be loaded from storage
+  int _unlockedLevel = 1;
   final List<ChessLevel> _levels = ChessLevel.getAllLevels();
+  final GameDatabase _database = GameDatabase();
 
   @override
   void initState() {
     super.initState();
+    _loadUnlockedLevel();
     _fadeController = AnimationController(
       duration: const Duration(milliseconds: 1000),
       vsync: this,
@@ -51,6 +54,14 @@ class _LevelSelectionScreenState extends State<LevelSelectionScreen>
     _fadeController.forward();
     _slideController.forward();
     _pulseController.repeat(reverse: true);
+  }
+
+  Future<void> _loadUnlockedLevel() async {
+    final unlockedLevel = await _database.getUnlockedLevel();
+    print('DEBUG: Loaded unlocked level: $unlockedLevel');
+    setState(() {
+      _unlockedLevel = unlockedLevel;
+    });
   }
 
   @override
@@ -93,18 +104,23 @@ class _LevelSelectionScreenState extends State<LevelSelectionScreen>
                     children: [
                       // Header
                       _buildHeader(),
-
+                          
                       SizedBox(height: 20.h),
-
+                          
                       // Progress indicator
                       _buildProgressIndicator(),
-
-                      SizedBox(height: 20.h),
-
+                          
+                      SizedBox(height: 10.h),
+                          
                       // Level grid
                       Expanded(
                         child: _buildLevelGrid(),
                       ),
+
+                      // Temporary debug button
+                      _buildDebugButton(),
+
+                      SizedBox(height: 20.h),
                     ],
                   ),
                 );
@@ -231,24 +247,27 @@ class _LevelSelectionScreenState extends State<LevelSelectionScreen>
   Widget _buildLevelGrid() {
     return SlideTransition(
       position: Tween<Offset>(
-        begin: const Offset(0, 0.3),
+        begin: const Offset(0, 0.1),
         end: Offset.zero,
       ).animate(_slideAnimation),
-      child: GridView.builder(
-        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 5,
-          childAspectRatio: 1,
-          crossAxisSpacing: 8.w,
-          mainAxisSpacing: 8.h,
-        ),
-        itemCount: _levels.length,
-        itemBuilder: (context, index) {
-          final level = _levels[index];
-          final isUnlocked = level.levelNumber <= _unlockedLevel;
-          final isCompleted = level.levelNumber < _unlockedLevel;
+      child: Padding(
+        padding: EdgeInsets.only(top: 5.h, bottom: 10.h),
+        child: GridView.builder(
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 5,
+            childAspectRatio: 1.1,
+            crossAxisSpacing: 6.w,
+            mainAxisSpacing: 6.h,
+          ),
+          itemCount: _levels.length,
+          itemBuilder: (context, index) {
+            final level = _levels[index];
+            final isUnlocked = level.levelNumber <= _unlockedLevel;
+            final isCompleted = level.levelNumber < _unlockedLevel;
 
-          return _buildLevelCard(level, isUnlocked, isCompleted);
-        },
+            return _buildLevelCard(level, isUnlocked, isCompleted);
+          },
+        ),
       ),
     );
   }
@@ -288,35 +307,35 @@ class _LevelSelectionScreenState extends State<LevelSelectionScreen>
                     Icon(
                       Icons.check_circle,
                       color: Colors.white,
-                      size: 20.sp,
+                      size: 16.sp,
                     )
                   else if (isUnlocked)
                     Icon(
                       Icons.play_arrow,
                       color: Colors.white,
-                      size: 20.sp,
+                      size: 16.sp,
                     )
                   else
                     Icon(
                       Icons.lock,
                       color: Colors.grey[400],
-                      size: 20.sp,
+                      size: 16.sp,
                     ),
-                  SizedBox(height: 4.h),
+                  SizedBox(height: 2.h),
                   Text(
                     '${level.levelNumber}',
                     style: TextStyle(
-                      fontSize: 16.sp,
+                      fontSize: 14.sp,
                       fontWeight: FontWeight.bold,
                       color: isUnlocked ? Colors.white : Colors.grey[400],
                     ),
                   ),
                   if (isUnlocked) ...[
-                    SizedBox(height: 2.h),
+                    SizedBox(height: 1.h),
                     Text(
                       level.difficultyText,
                       style: TextStyle(
-                        fontSize: 8.sp,
+                        fontSize: 7.sp,
                         color: Colors.white70,
                       ),
                     ),
@@ -369,14 +388,45 @@ class _LevelSelectionScreenState extends State<LevelSelectionScreen>
       MaterialPageRoute(
         builder: (context) => ChessGameScreen(
           level: level,
-          onLevelComplete: (won) {
-            if (won && level.levelNumber == _unlockedLevel) {
-              setState(() {
-                _unlockedLevel++;
-              });
+          onLevelComplete: (won) async {
+            print('DEBUG: Level completion callback called with won: $won for level ${level.levelNumber}');
+            if (won) {
+              print('DEBUG: Marking level ${level.levelNumber} as completed');
+              await _database.completeLevel(level.levelNumber);
+              print('DEBUG: Level ${level.levelNumber} marked as completed, reloading unlocked level');
+              await _loadUnlockedLevel();
             }
           },
         ),
+      ),
+    ).then((_) {
+      // Always refresh the level selection when returning from game
+      _loadUnlockedLevel();
+    });
+  }
+
+  Widget _buildDebugButton() {
+    return Container(
+      margin: EdgeInsets.symmetric(horizontal: 20.w),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          ElevatedButton(
+            onPressed: () async {
+              print('DEBUG: Resetting progress');
+              await _database.resetProgress();
+              await _loadUnlockedLevel();
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Progress reset!')),
+              );
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red[600],
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('Reset Progress'),
+          ),
+        ],
       ),
     );
   }
