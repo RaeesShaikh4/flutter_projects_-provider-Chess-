@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_practices/provider_practices/to_do/providers/todo_provider.dart';
+import 'package:classic_chess/provider_practices/to_do/providers/todo_provider.dart';
 import 'package:provider/provider.dart';
 
 class HomeScreen extends StatefulWidget {

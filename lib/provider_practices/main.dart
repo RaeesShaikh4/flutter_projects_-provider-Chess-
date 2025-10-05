@@ -1,7 +1,8 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_practices/provider_practices/to_do/providers/todo_provider.dart';
-import 'package:flutter_practices/provider_practices/to_do/screens/home_screen.dart';
+import 'package:flutter/material.dart'; 
 import 'package:provider/provider.dart';
+
+import 'to_do/providers/todo_provider.dart';
+import 'to_do/screens/home_screen.dart';
 
 void main() {
   runApp(ChangeNotifierProvider(
