@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../models/level.dart';
 import '../database/game_database.dart';
 import '../utils/custom_toast.dart';
+import '../utils/simple_sound_manager.dart';
 import 'chess_game_screen.dart';
 
 class LevelSelectionScreen extends StatefulWidget {
@@ -227,6 +228,7 @@ class _LevelSelectionScreenState extends State<LevelSelectionScreen>
                     GestureDetector(
                       onTap: () async {
                         print('DEBUG: Reset button pressed from progress indicator');
+                        SimpleSoundManager().playButtonClickSound();
                         await _database.resetProgress();
                         await _loadUnlockedLevel();
                         
@@ -323,7 +325,11 @@ class _LevelSelectionScreenState extends State<LevelSelectionScreen>
           child: Transform.scale(
             scale: isUnlocked ? _pulseAnimation.value : 1.0,
             child: GestureDetector(
-              onTap: isUnlocked ? () => _startLevel(level) : null,
+              onTap: isUnlocked ? () {
+                SimpleSoundManager().stopBackgroundMusic();
+                SimpleSoundManager().playButtonClickSound();
+                _startLevel(level);
+              } : null,
               child: Container(
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
@@ -437,6 +443,7 @@ class _LevelSelectionScreenState extends State<LevelSelectionScreen>
             print('DEBUG: Level completion callback called with won: $won for level ${level.levelNumber}');
             if (won) {
               print('DEBUG: Marking level ${level.levelNumber} as completed');
+              SimpleSoundManager().playAchievementSound();
               await _database.completeLevel(level.levelNumber);
               print('DEBUG: Level ${level.levelNumber} marked as completed, reloading unlocked level');
               await _loadUnlockedLevel();

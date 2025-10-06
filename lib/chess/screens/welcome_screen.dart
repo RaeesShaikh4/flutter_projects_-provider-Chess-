@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import '../utils/simple_sound_manager.dart';
 import 'chess_game_screen.dart';
 import 'level_selection_screen.dart';
+import 'settings_screen.dart';
 
 class WelcomeScreen extends StatefulWidget {
   const WelcomeScreen({super.key});
@@ -20,10 +22,12 @@ class _WelcomeScreenState extends State<WelcomeScreen>
   late Animation<double> _slideAnimation;
   late Animation<double> _pulseAnimation;
   late Animation<double> _scaleAnimation;
+  bool _isMusicResumed = false;
 
   @override
   void initState() {
     super.initState();
+    print('DEBUG: WelcomeScreen initState called');
     _fadeController = AnimationController(
       duration: const Duration(milliseconds: 1500),
       vsync: this,
@@ -66,6 +70,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
     _slideController.dispose();
     _pulseController.dispose();
     _scaleController.dispose();
+    _isMusicResumed = false;
     super.dispose();
   }
 
@@ -170,25 +175,23 @@ class _WelcomeScreenState extends State<WelcomeScreen>
               ),
             ),
             const Spacer(),
-            AnimatedBuilder(
-              animation: _pulseAnimation,
-              builder: (context, child) {
-                return Transform.scale(
-                  scale: _pulseAnimation.value,
-                  child: Container(
-                    padding: EdgeInsets.all(8.r),
-                    decoration: BoxDecoration(
-                      color: Colors.brown[700]!.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(20.r),
-                    ),
-                    child: Icon(
-                      Icons.settings,
-                      color: Colors.brown[700],
-                      size: 20.sp,
-                    ),
-                  ),
-                );
+            GestureDetector(
+              onTap: () {
+                print('DEBUG: Settings icon tapped - _openSettings called');
+                _openSettings();
               },
+              child: Container(
+                padding: EdgeInsets.all(8.r), // Increased padding
+                decoration: BoxDecoration(
+                  color: Colors.brown[700]!.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(20.r),
+                ),
+                child: Icon(
+                  Icons.settings,
+                  color: Colors.brown[700],
+                  size: 24.sp, // Larger icon
+                ),
+              ),
             ),
           ],
         ),
@@ -452,85 +455,60 @@ class _WelcomeScreenState extends State<WelcomeScreen>
     );
   }
 
-  Widget _buildFeatures() {
-    return SlideTransition(
-      position: Tween<Offset>(
-        begin: const Offset(0, 0.5),
-        end: Offset.zero,
-      ).animate(_slideAnimation),
-      child: Container(
-        margin: EdgeInsets.symmetric(horizontal: 20.w),
-        child: Column(
-          children: [
-            _buildFeatureItem(Icons.smart_toy, 'AI Opponent',
-                'Play against intelligent computer'),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildFeatureItem(IconData icon, String title, String description) {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
-      decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.7),
-        borderRadius: BorderRadius.circular(15.r),
-        border: Border.all(
-          color: Colors.brown[300]!,
-          width: 1.w,
-        ),
-      ),
-      child: Row(
-        children: [
-          Icon(
-            icon,
-            color: Colors.brown[700],
-            size: 20,
-          ),
-          SizedBox(width: 12.w),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: TextStyle(
-                    fontSize: 14.sp,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.brown[700],
-                  ),
-                ),
-                Text(
-                  description,
-                  style: TextStyle(
-                    fontSize: 12.sp,
-                    color: Colors.brown[600],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   void _startGame() {
-    Navigator.pushReplacement(
+    _isMusicResumed = false; // Reset flag when navigating away
+    SimpleSoundManager().stopBackgroundMusic();
+    Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => const ChessGameScreen(),
       ),
-    );
+    ).then((_) {
+      // Resume music when returning to welcome screen
+      if (!_isMusicResumed) {
+        SimpleSoundManager().resumeBackgroundMusic();
+        _isMusicResumed = true;
+      }
+    });
   }
 
   void _startLevels() {
+    _isMusicResumed = false; // Reset flag when navigating away
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => const LevelSelectionScreen(),
       ),
-    );
+    ).then((_) {
+      // Resume music when returning to welcome screen
+      if (!_isMusicResumed) {
+        SimpleSoundManager().resumeBackgroundMusic();
+        _isMusicResumed = true;
+      }
+    });
+  }
+
+  void _openSettings() {
+    print('DEBUG: Settings icon tapped - _openSettings called');
+    _isMusicResumed = false; // Reset flag when navigating away
+    
+    // Simple test navigation first
+    try {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const SettingsScreen(),
+        ),
+      ).then((_) {
+        print('DEBUG: Returned from settings screen');
+        // Resume music when returning to welcome screen
+        if (!_isMusicResumed) {
+          SimpleSoundManager().resumeBackgroundMusic();
+          _isMusicResumed = true;
+        }
+      });
+    } catch (e) {
+      print('DEBUG: Navigation error: $e');
+    }
   }
 }

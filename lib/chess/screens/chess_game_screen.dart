@@ -6,6 +6,7 @@ import '../models/level.dart';
 import '../game/chess_game.dart';
 import '../ai/level_chess_ai.dart';
 import '../widgets/chess_board.dart';
+import '../utils/simple_sound_manager.dart';
 import 'welcome_screen.dart';
 
 class ChessGameScreen extends StatefulWidget {
@@ -96,6 +97,19 @@ class _ChessGameScreenState extends State<ChessGameScreen>
 
     // Make the move
     if (game.makeMove(from, to)) {
+      // Play appropriate sound based on move type
+      final piece = game.getPieceAt(to);
+      final capturedPiece = game.getPieceAt(to);
+      
+      // Check for castling
+      if (piece?.type == PieceType.king && (to.col - from.col).abs() == 2) {
+        SimpleSoundManager().playCastleSound();
+      } else if (capturedPiece != null) {
+        SimpleSoundManager().playCaptureSound();
+      } else {
+        SimpleSoundManager().playMoveSound();
+      }
+
       setState(() {
         lastMoveFrom = from;
         lastMoveTo = to;
@@ -113,6 +127,9 @@ class _ChessGameScreenState extends State<ChessGameScreen>
       if (game.currentPlayer == PieceColor.black) {
         _makeAIMove();
       }
+    } else {
+      // Play error sound for invalid move
+      SimpleSoundManager().playErrorSound();
     }
   }
 
@@ -126,6 +143,19 @@ class _ChessGameScreenState extends State<ChessGameScreen>
 
     final aiMove = ai.getBestMove(game);
     if (aiMove != null && game.makeMove(aiMove.from, aiMove.to)) {
+      // Play appropriate sound based on AI move type
+      final piece = game.getPieceAt(aiMove.to);
+      final capturedPiece = game.getPieceAt(aiMove.to);
+      
+      // Check for castling
+      if (piece?.type == PieceType.king && (aiMove.to.col - aiMove.from.col).abs() == 2) {
+        SimpleSoundManager().playCastleSound();
+      } else if (capturedPiece != null) {
+        SimpleSoundManager().playCaptureSound();
+      } else {
+        SimpleSoundManager().playMoveSound();
+      }
+
       setState(() {
         lastMoveFrom = aiMove.from;
         lastMoveTo = aiMove.to;
@@ -162,16 +192,22 @@ class _ChessGameScreenState extends State<ChessGameScreen>
             : 'AI wins by checkmate!';
         dialogColor = playerWon ? Colors.green : Colors.red;
         dialogIcon = Icons.emoji_events;
+        // Play checkmate sound
+        SimpleSoundManager().playCheckmateSound();
         break;
       case GameState.stalemate:
         message = 'Draw by stalemate!';
         dialogColor = Colors.orange;
         dialogIcon = Icons.handshake;
+        // Play stalemate sound
+        SimpleSoundManager().playStalemateSound();
         break;
       case GameState.draw:
         message = 'Draw!';
         dialogColor = Colors.blue;
         dialogIcon = Icons.balance;
+        // Play game draw sound
+        SimpleSoundManager().playGameDrawSound();
         break;
       case GameState.playing:
         return;
@@ -193,14 +229,14 @@ class _ChessGameScreenState extends State<ChessGameScreen>
       builder: (context) => playerWon 
         ? _buildCongratulationsDialog()
         : AnimatedDialog(
-            message: message,
-            dialogColor: dialogColor,
-            icon: dialogIcon,
+        message: message,
+        dialogColor: dialogColor,
+        icon: dialogIcon,
             onClose: () {
-              Navigator.of(context).pop();
-              Navigator.of(context).pop(); // Go back to level selection
+          Navigator.of(context).pop();
+          Navigator.of(context).pop(); // Go back to level selection
             },
-          ),
+      ),
     );
   }
 
@@ -227,12 +263,7 @@ class _ChessGameScreenState extends State<ChessGameScreen>
         backgroundColor: Colors.brown[100],
         leading: IconButton(
           onPressed: () {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const WelcomeScreen(),
-              ),
-            );
+           Navigator.of(context).pop();
           },
           icon: const Icon(Icons.logout),
           tooltip: 'Back to Welcome Screen',
@@ -673,7 +704,7 @@ class _ChessGameScreenState extends State<ChessGameScreen>
                         height: 50.h,
                         child: ElevatedButton(
                           onPressed: () {
-                            Navigator.of(context).pop();
+          Navigator.of(context).pop();
                             Navigator.of(context).pop(); // Go back to level selection
                           },
                           style: ElevatedButton.styleFrom(
