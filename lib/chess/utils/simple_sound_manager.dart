@@ -12,165 +12,141 @@ class SimpleSoundManager {
   bool _soundEnabled = true;
   bool _musicEnabled = true;
 
-  // Sound effect methods - haptic feedback with audio fallback
   Future<void> playMoveSound() async {
     if (!_soundEnabled) return;
-    // Always provide haptic feedback
     HapticFeedback.lightImpact();
     
-    // Try to play audio (will fail gracefully if files are invalid)
     try {
       await _audioPlayer.play(AssetSource('sounds/move.mp3'));
     } catch (e) {
-      // Silently handle audio errors - haptic feedback is already provided
+      print('Error playing move sound: $e');
     }
   }
 
   Future<void> playCaptureSound() async {
     if (!_soundEnabled) return;
-    // Always provide haptic feedback
     HapticFeedback.mediumImpact();
     
-    // Try to play audio (will fail gracefully if files are invalid)
     try {
       await _audioPlayer.play(AssetSource('sounds/capture.mp3'));
     } catch (e) {
-      // Silently handle audio errors - haptic feedback is already provided
+      print('Error playing capture sound: $e');
     }
   }
 
   Future<void> playCheckSound() async {
     if (!_soundEnabled) return;
-    // Always provide haptic feedback
     HapticFeedback.heavyImpact();
     
-    // Try to play audio (will fail gracefully if files are invalid)
     try {
       await _audioPlayer.play(AssetSource('sounds/check.mp3'));
     } catch (e) {
-      // Silently handle audio errors - haptic feedback is already provided
+      print('Error playing check sound: $e');
     }
   }
 
   Future<void> playCheckmateSound() async {
     if (!_soundEnabled) return;
-    // Always provide haptic feedback
     HapticFeedback.heavyImpact();
     await Future.delayed(const Duration(milliseconds: 200));
     HapticFeedback.heavyImpact();
     
-    // Try to play audio (will fail gracefully if files are invalid)
     try {
       await _audioPlayer.play(AssetSource('sounds/checkmate.mp3'));
     } catch (e) {
-      // Silently handle audio errors - haptic feedback is already provided
+      print('Error playing checkmate sound: $e');
     }
   }
 
   Future<void> playStalemateSound() async {
     if (!_soundEnabled) return;
-    // Always provide haptic feedback
     HapticFeedback.lightImpact();
     
-    // Try to play audio (will fail gracefully if files are invalid)
     try {
       await _audioPlayer.play(AssetSource('sounds/stalemate.mp3'));
     } catch (e) {
-      // Silently handle audio errors - haptic feedback is already provided
+      print('Error playing stalemate sound: $e');
     }
   }
 
   Future<void> playButtonClickSound() async {
     if (!_soundEnabled) return;
-    // Always provide haptic feedback
     HapticFeedback.selectionClick();
     
-    // Try to play audio (will fail gracefully if files are invalid)
     try {
       await _audioPlayer.play(AssetSource('sounds/click.mp3'));
     } catch (e) {
-      // Silently handle audio errors - haptic feedback is already provided
+      print('Error playing button click sound: $e');
     }
   }
 
   Future<void> playLevelCompleteSound() async {
     if (!_soundEnabled) return;
-    // Always provide haptic feedback
     HapticFeedback.heavyImpact();
     await Future.delayed(const Duration(milliseconds: 100));
     HapticFeedback.heavyImpact();
     
-    // Try to play audio (will fail gracefully if files are invalid)
     try {
       await _audioPlayer.play(AssetSource('sounds/level_complete.mp3'));
     } catch (e) {
-      // Silently handle audio errors - haptic feedback is already provided
+      print('Error playing level complete sound: $e');
     }
   }
 
   Future<void> playErrorSound() async {
     if (!_soundEnabled) return;
-    // Always provide haptic feedback
     HapticFeedback.lightImpact();
     
-    // Try to play audio (will fail gracefully if files are invalid)
     try {
       await _audioPlayer.play(AssetSource('sounds/illegal_move.mp3'));
     } catch (e) {
-      // Silently handle audio errors - haptic feedback is already provided
+      print('Error playing error sound: $e');
     }
   }
 
   Future<void> playCastleSound() async {
     if (!_soundEnabled) return;
-    // Always provide haptic feedback
     HapticFeedback.mediumImpact();
     
-    // Try to play audio (will fail gracefully if files are invalid)
     try {
       await _audioPlayer.play(AssetSource('sounds/castle.mp3'));
     } catch (e) {
-      // Silently handle audio errors - haptic feedback is already provided
+      print('Error playing castle sound: $e');
     }
   }
 
   Future<void> playAchievementSound() async {
     if (!_soundEnabled) return;
-    // Always provide haptic feedback
     HapticFeedback.heavyImpact();
     await Future.delayed(const Duration(milliseconds: 150));
     HapticFeedback.heavyImpact();
     
-    // Try to play audio (will fail gracefully if files are invalid)
     try {
       await _audioPlayer.play(AssetSource('sounds/achievement.mp3'));
     } catch (e) {
-      // Silently handle audio errors - haptic feedback is already provided
+      print('Error playing achievement sound: $e');
     }
   }
 
   Future<void> playGameDrawSound() async {
     if (!_soundEnabled) return;
-    // Always provide haptic feedback
     HapticFeedback.lightImpact();
     
-    // Try to play audio (will fail gracefully if files are invalid)
     try {
       await _audioPlayer.play(AssetSource('sounds/game-draw.mp3'));
     } catch (e) {
-      // Silently handle audio errors - haptic feedback is already provided
+      print('Error playing game draw sound: $e');
     }
   }
 
-  // Background music methods - graceful fallback for invalid MP3 files
   Future<void> playBackgroundMusic() async {
     if (!_musicEnabled) return;
     try {
       await _musicPlayer.setReleaseMode(ReleaseMode.loop);
-      await _musicPlayer.setVolume(0.3); // Lower volume for background music
+      await _musicPlayer.setVolume(0.3);
       await _musicPlayer.play(AssetSource('sounds/chess_background_music.mp3'));
     } catch (e) {
-      // Silently handle audio errors - provide visual feedback instead
+      print('Error playing background music: $e');
       print('Background music not available (using visual feedback only)');
     }
   }
@@ -194,10 +170,9 @@ class SimpleSoundManager {
   Future<void> resumeBackgroundMusic() async {
     if (!_musicEnabled) return;
     try {
-      // Check if music is already playing before trying to resume
       final state = await _musicPlayer.state;
       if (state == PlayerState.playing) {
-        return; // Music is already playing, no need to resume
+        return;
       }
       await _musicPlayer.resume();
     } catch (e) {
@@ -205,7 +180,6 @@ class SimpleSoundManager {
     }
   }
 
-  // Sound control methods
   void enableSound() {
     _soundEnabled = true;
   }
@@ -220,7 +194,6 @@ class SimpleSoundManager {
     _soundEnabled = !_soundEnabled;
   }
 
-  // Music control methods
   void enableMusic() {
     _musicEnabled = true;
   }
@@ -241,7 +214,6 @@ class SimpleSoundManager {
     }
   }
 
-  // Dispose method
   void dispose() {
     _audioPlayer.dispose();
     _musicPlayer.dispose();

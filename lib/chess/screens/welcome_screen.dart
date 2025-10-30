@@ -116,11 +116,11 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                               children: [
                                 _buildChessPreview(),
 
-                                SizedBox(height: 30.h),
+                                SizedBox(height: 20.h),
 
                                 _buildTitleSection(),
 
-                                SizedBox(height: 40.h),
+                                SizedBox(height: 50.h),
 
                                 _buildPlayButtons(),
 
@@ -145,7 +145,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
   Widget _buildHeader() {
     return SlideTransition(
       position: Tween<Offset>(
-        begin: const Offset(0, -0.5),
+        begin: const Offset(0, -0.4),
         end: Offset.zero,
       ).animate(_slideAnimation),
       child: Container(
@@ -195,7 +195,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
   Widget _buildChessPreview() {
     return SlideTransition(
       position: Tween<Offset>(
-        begin: const Offset(0, 0.3),
+        begin: const Offset(0, 0.2),
         end: Offset.zero,
       ).animate(_slideAnimation),
       child: AnimatedBuilder(
@@ -290,7 +290,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
   Widget _buildTitleSection() {
     return SlideTransition(
       position: Tween<Offset>(
-        begin: const Offset(0, 0.5),
+        begin: const Offset(0, 0.4),
         end: Offset.zero,
       ).animate(_slideAnimation),
       child: Column(
@@ -491,7 +491,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
   }
 
   void _startGame() {
-    _isMusicResumed = false; // Reset flag when navigating away
+    _isMusicResumed = false;
     SimpleSoundManager().stopBackgroundMusic();
     Navigator.push(
       context,
@@ -499,7 +499,6 @@ class _WelcomeScreenState extends State<WelcomeScreen>
         builder: (context) => const ChessGameScreen(),
       ),
     ).then((_) {
-      // Resume music when returning to welcome screen
       if (!_isMusicResumed) {
         SimpleSoundManager().resumeBackgroundMusic();
         _isMusicResumed = true;
@@ -508,14 +507,13 @@ class _WelcomeScreenState extends State<WelcomeScreen>
   }
 
   void _startLevels() {
-    _isMusicResumed = false; // Reset flag when navigating away
+    _isMusicResumed = false; 
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => const LevelSelectionScreen(),
       ),
     ).then((_) {
-      // Resume music when returning to welcome screen
       if (!_isMusicResumed) {
         SimpleSoundManager().resumeBackgroundMusic();
         _isMusicResumed = true;
@@ -525,9 +523,8 @@ class _WelcomeScreenState extends State<WelcomeScreen>
 
   void _openSettings() {
     print('DEBUG: Settings icon tapped - _openSettings called');
-    _isMusicResumed = false; // Reset flag when navigating away
+    _isMusicResumed = false;
     
-    // Simple test navigation first
     try {
       Navigator.push(
         context,
@@ -536,7 +533,6 @@ class _WelcomeScreenState extends State<WelcomeScreen>
         ),
       ).then((_) {
         print('DEBUG: Returned from settings screen');
-        // Resume music when returning to welcome screen
         if (!_isMusicResumed) {
           SimpleSoundManager().resumeBackgroundMusic();
           _isMusicResumed = true;

@@ -77,13 +77,11 @@ class CustomToast {
 
     overlay.insert(overlayEntry);
 
-    // Auto remove after specified duration
     Future.delayed(duration, () {
       overlayEntry.remove();
     });
   }
 
-  // Convenience methods for different toast types
   static void success(BuildContext context, String message) {
     show(
       context,

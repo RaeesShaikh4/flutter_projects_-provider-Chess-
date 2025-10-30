@@ -24,13 +24,11 @@ class ChessGame {
   void _initializeBoard() {
     board = List.generate(8, (row) => List.generate(8, (col) => null));
 
-    // Place pawns
     for (int col = 0; col < 8; col++) {
       board[1][col] = Piece(type: PieceType.pawn, color: PieceColor.black);
       board[6][col] = Piece(type: PieceType.pawn, color: PieceColor.white);
     }
 
-    // Place other pieces
     final pieceOrder = [
       PieceType.rook,
       PieceType.knight,
@@ -73,14 +71,11 @@ class ChessGame {
         final targetPiece = getPieceAt(current);
 
         if (targetPiece == null) {
-          // Empty square
           moves.add(current);
         } else if (targetPiece.color != piece.color) {
-          // Enemy piece
           moves.add(current);
           break;
         } else {
-          // Own piece
           break;
         }
 
@@ -90,17 +85,14 @@ class ChessGame {
       }
     }
 
-    // Special moves for pawns
     if (piece.type == PieceType.pawn) {
       moves.addAll(_getPawnMoves(from, piece));
     }
 
-    // Special moves for king (castling)
     if (piece.type == PieceType.king) {
       moves.addAll(_getCastlingMoves(from, piece));
     }
 
-    // Filter out moves that would put own king in check
     return moves.where((move) => !wouldBeInCheck(from, move)).toList();
   }
 
@@ -109,12 +101,10 @@ class ChessGame {
     final direction = piece.color == PieceColor.white ? -1 : 1;
     final startRow = piece.color == PieceColor.white ? 6 : 1;
 
-    // Forward move
     final forward = Position(from.row + direction, from.col);
     if (forward.isValid && getPieceAt(forward) == null) {
       moves.add(forward);
 
-      // Double move from starting position
       if (from.row == startRow) {
         final doubleForward = Position(from.row + 2 * direction, from.col);
         if (doubleForward.isValid && getPieceAt(doubleForward) == null) {
@@ -123,7 +113,6 @@ class ChessGame {
       }
     }
 
-    // Diagonal captures
     for (final colOffset in [-1, 1]) {
       final diagonal = Position(from.row + direction, from.col + colOffset);
       if (diagonal.isValid) {
@@ -131,7 +120,6 @@ class ChessGame {
         if (targetPiece != null && targetPiece.color != piece.color) {
           moves.add(diagonal);
         }
-        // En passant
         else if (enPassantTarget == diagonal) {
           moves.add(diagonal);
         }
@@ -149,7 +137,6 @@ class ChessGame {
     final kingSide = getPieceAt(Position(row, 7));
     final queenSide = getPieceAt(Position(row, 0));
 
-    // King side castling
     if (kingSide != null &&
         kingSide.type == PieceType.rook &&
         !kingSide.hasMoved &&
@@ -158,7 +145,6 @@ class ChessGame {
       moves.add(Position(row, 6));
     }
 
-    // Queen side castling
     if (queenSide != null &&
         queenSide.type == PieceType.rook &&
         !queenSide.hasMoved &&
@@ -174,7 +160,7 @@ class ChessGame {
   List<Position> _getPieceDirections(PieceType type) {
     switch (type) {
       case PieceType.pawn:
-        return []; // Handled separately
+        return [];
       case PieceType.rook:
         return [
           Position(-1, 0),
@@ -245,7 +231,6 @@ class ChessGame {
   }
 
   bool wouldBeInCheck(Position from, Position to) {
-    // Simulate the move
     final originalPiece = getPieceAt(to);
     final movingPiece = getPieceAt(from);
 
@@ -254,7 +239,6 @@ class ChessGame {
 
     final inCheck = _isInCheck(currentPlayer);
 
-    // Restore the board
     setPieceAt(from, movingPiece);
     setPieceAt(to, originalPiece);
 
@@ -265,7 +249,6 @@ class ChessGame {
     final kingPosition = _findKing(color);
     if (kingPosition == null) return false;
 
-    // Check if any enemy piece can attack the king
     for (int row = 0; row < 8; row++) {
       for (int col = 0; col < 8; col++) {
         final piece = getPieceAt(Position(row, col));
@@ -281,7 +264,6 @@ class ChessGame {
   }
 
   List<Position> _getRawMoves(Position from, Piece piece) {
-    // Similar to getValidMoves but without check validation
     List<Position> moves = [];
     final directions = _getPieceDirections(piece.type);
 
@@ -342,19 +324,15 @@ class ChessGame {
       capturedPiece: capturedPiece,
     );
 
-    // Execute the move
     setPieceAt(to, piece.copyWith(hasMoved: true));
     setPieceAt(from, null);
 
-    // Handle special moves
     if (piece.type == PieceType.pawn && (to.row == 0 || to.row == 7)) {
-      // Pawn promotion (simplified - always promote to queen)
       setPieceAt(
           to, Piece(type: PieceType.queen, color: piece.color, hasMoved: true));
     }
 
     if (piece.type == PieceType.king && (to.col - from.col).abs() == 2) {
-      // Castling
       final rookCol = to.col > from.col ? 7 : 0;
       final rook = getPieceAt(Position(from.row, rookCol));
       if (rook != null) {
@@ -368,7 +346,6 @@ class ChessGame {
     currentPlayer =
         currentPlayer == PieceColor.white ? PieceColor.black : PieceColor.white;
 
-    // Update game state
     _updateGameState();
 
     return true;
@@ -410,7 +387,6 @@ class ChessGame {
     enPassantTarget = null;
   }
 
-  // Get a random valid move for AI
   Move? getRandomValidMove() {
     List<Move> allMoves = [];
 

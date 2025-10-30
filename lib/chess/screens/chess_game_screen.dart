@@ -176,7 +176,6 @@ class _ChessGameScreenState extends State<ChessGameScreen>
         // If it's Black's turn and Black is checkmated, White (player) wins
         // If it's White's turn and White is checkmated, Black (AI) wins
         if (!widget.aiEnabled) {
-          // Human vs Human: label winners as Player 1 (White) / Player 2 (Black)
           final isWhiteCheckmated = game.currentPlayer == PieceColor.white;
           final winnerLabel = isWhiteCheckmated ? 'Player 2 (Black)' : 'Player 1 (White)';
           message = '$winnerLabel wins by checkmate!';
@@ -198,7 +197,6 @@ class _ChessGameScreenState extends State<ChessGameScreen>
         message = 'Draw by stalemate!';
         dialogColor = Colors.orange;
         dialogIcon = Icons.handshake;
-        // Play stalemate sound
         SimpleSoundManager().playStalemateSound();
         break;
       case GameState.draw:
@@ -566,7 +564,6 @@ class _ChessGameScreenState extends State<ChessGameScreen>
       switch (game.gameState) {
         case GameState.checkmate:
           if (!widget.aiEnabled) {
-            // Human vs Human labels
             final isWhiteCheckmated = game.currentPlayer == PieceColor.white;
             return isWhiteCheckmated
                 ? 'Black wins by checkmate!'

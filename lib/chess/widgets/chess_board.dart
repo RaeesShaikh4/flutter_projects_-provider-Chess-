@@ -153,16 +153,12 @@ class _ChessBoardState extends State<ChessBoard> with TickerProviderStateMixin {
                 ),
                 child: Stack(
                   children: [
-                    // Square background with animations
                     _buildSquareBackground(isLight, isLastMove),
 
-                    // Valid move indicator
                     if (isValidMove) _buildValidMoveIndicator(),
 
-                    // Selected piece glow
                     if (isSelected) _buildSelectionGlow(),
 
-                    // Piece with animations
                     if (piece != null)
                       _buildAnimatedPiece(piece, position, isSelected),
                   ],
@@ -283,10 +279,8 @@ class _ChessBoardState extends State<ChessBoard> with TickerProviderStateMixin {
         child: _buildPieceWidget(piece, false),
       ),
       onDragStarted: () {
-        // Drag started
       },
       onDragEnd: (details) {
-        // Drag ended
       },
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
@@ -329,14 +323,11 @@ class _ChessBoardState extends State<ChessBoard> with TickerProviderStateMixin {
 
   void _handleSquareTap(Position position) {
     if (widget.selectedPosition == position) {
-      // Deselect
       widget.onMove(position, position);
     } else if (widget.validMoves.contains(position)) {
-      // Make move
       widget.onMove(widget.selectedPosition!, position);
     } else if (widget.game.getPieceAt(position) != null &&
         widget.game.getPieceAt(position)!.color == widget.game.currentPlayer) {
-      // Select piece
       widget.onMove(position, position);
     }
   }
