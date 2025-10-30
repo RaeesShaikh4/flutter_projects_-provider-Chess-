@@ -12,11 +12,13 @@ import 'welcome_screen.dart';
 class ChessGameScreen extends StatefulWidget {
   final ChessLevel? level;
   final Function(bool)? onLevelComplete;
+  final bool aiEnabled; // true = play vs AI (black), false = play with friend
 
   const ChessGameScreen({
     super.key,
     this.level,
     this.onLevelComplete,
+    this.aiEnabled = true,
   });
 
   @override
@@ -96,15 +98,16 @@ class _ChessGameScreenState extends State<ChessGameScreen>
     }
 
     // Make the move
+    // Capture detection must be performed before move execution
+    final wasCapture = game.getPieceAt(to) != null;
     if (game.makeMove(from, to)) {
       // Play appropriate sound based on move type
       final piece = game.getPieceAt(to);
-      final capturedPiece = game.getPieceAt(to);
       
       // Check for castling
       if (piece?.type == PieceType.king && (to.col - from.col).abs() == 2) {
         SimpleSoundManager().playCastleSound();
-      } else if (capturedPiece != null) {
+      } else if (wasCapture) {
         SimpleSoundManager().playCaptureSound();
       } else {
         SimpleSoundManager().playMoveSound();
@@ -123,8 +126,8 @@ class _ChessGameScreenState extends State<ChessGameScreen>
         return;
       }
 
-      // AI's turn
-      if (game.currentPlayer == PieceColor.black) {
+      // AI's turn (only when enabled)
+      if (widget.aiEnabled && game.currentPlayer == PieceColor.black) {
         _makeAIMove();
       }
     } else {
@@ -145,12 +148,13 @@ class _ChessGameScreenState extends State<ChessGameScreen>
     if (aiMove != null && game.makeMove(aiMove.from, aiMove.to)) {
       // Play appropriate sound based on AI move type
       final piece = game.getPieceAt(aiMove.to);
-      final capturedPiece = game.getPieceAt(aiMove.to);
+      // captured detection already occurred before move; infer by moveHistory
+      final wasCapture = game.moveHistory.isNotEmpty && game.moveHistory.last.to == aiMove.to && game.moveHistory.last.capturedPiece != null;
       
       // Check for castling
       if (piece?.type == PieceType.king && (aiMove.to.col - aiMove.from.col).abs() == 2) {
         SimpleSoundManager().playCastleSound();
-      } else if (capturedPiece != null) {
+      } else if (wasCapture) {
         SimpleSoundManager().playCaptureSound();
       } else {
         SimpleSoundManager().playMoveSound();
@@ -218,25 +222,44 @@ class _ChessGameScreenState extends State<ChessGameScreen>
     if (widget.onLevelComplete != null) {
       print('DEBUG: Calling onLevelComplete with won: $playerWon');
       widget.onLevelComplete!(playerWon);
-    } else {
-      print('DEBUG: onLevelComplete is null!');
     }
 
 
+    // Dialog and navigation behavior differ for level mode vs quick/friend mode
+    final isLevelMode = widget.level != null;
+    if (!isLevelMode) {
+      // Friend or quick play: single dialog, single pop
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => AnimatedDialog(
+          message: message,
+          dialogColor: dialogColor,
+          icon: dialogIcon,
+          onClose: () {
+            Navigator.of(context).pop(); // close dialog
+            Navigator.of(context).pop(); // back to previous screen
+          },
+        ),
+      );
+      return;
+    }
+
+    // Level mode
     showDialog(
       context: context,
       barrierDismissible: false,
       builder: (context) => playerWon 
         ? _buildCongratulationsDialog()
         : AnimatedDialog(
-        message: message,
-        dialogColor: dialogColor,
-        icon: dialogIcon,
+            message: message,
+            dialogColor: dialogColor,
+            icon: dialogIcon,
             onClose: () {
-          Navigator.of(context).pop();
-          Navigator.of(context).pop(); // Go back to level selection
+              Navigator.of(context).pop(); // close dialog
+              Navigator.of(context).pop(); // Go back to level selection
             },
-      ),
+          ),
     );
   }
 
@@ -547,9 +570,10 @@ class _ChessGameScreenState extends State<ChessGameScreen>
           break;
       }
     }
-    return game.currentPlayer == PieceColor.white
-        ? Icons.person
-        : Icons.smart_toy;
+    if (!widget.aiEnabled) {
+      return Icons.person; // neutral person icon for 2-player mode
+    }
+    return game.currentPlayer == PieceColor.white ? Icons.person : Icons.smart_toy;
   }
 
   String _getGameStatusText() {
@@ -568,13 +592,19 @@ class _ChessGameScreenState extends State<ChessGameScreen>
       }
     }
 
-    if (isAITurn) {
-      return 'AI is thinking...';
+    if (widget.aiEnabled) {
+      if (isAITurn) {
+        return 'AI is thinking...';
+      }
+      return game.currentPlayer == PieceColor.white
+          ? 'Your turn (White)'
+          : 'AI turn (Black)';
+    } else {
+      // Friend mode
+      return game.currentPlayer == PieceColor.white
+          ? 'White to move'
+          : 'Black to move';
     }
-
-    return game.currentPlayer == PieceColor.white
-        ? 'Your turn (White)'
-        : 'AI turn (Black)';
   }
 
   void _showGameInfo() {

@@ -450,6 +450,53 @@ class _WelcomeScreenState extends State<WelcomeScreen>
               );
             },
           ),
+
+          SizedBox(height: 16.h),
+
+          // Play with Friend button (no animation)
+          Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Colors.green[600]!, Colors.green[800]!],
+              ),
+              borderRadius: BorderRadius.circular(30.r),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.green[600]!.withOpacity(0.4),
+                  blurRadius: 15.r,
+                  offset: Offset(0, 8.h),
+                ),
+              ],
+            ),
+            child: InkWell(
+              onTap: _startFriendGame,
+              borderRadius: BorderRadius.circular(30.r),
+              child: Container(
+                padding: EdgeInsets.symmetric(
+                    horizontal: 32.w, vertical: 14.h),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.group,
+                      color: Colors.white,
+                      size: 28.sp,
+                    ),
+                    SizedBox(width: 12.w),
+                    Text(
+                      'PLAY WITH FRIEND',
+                      style: TextStyle(
+                        fontSize: 18.sp,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                        letterSpacing: 1,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
         ],
       ),
     );
@@ -510,5 +557,22 @@ class _WelcomeScreenState extends State<WelcomeScreen>
     } catch (e) {
       print('DEBUG: Navigation error: $e');
     }
+  }
+
+  void _startFriendGame() {
+    _isMusicResumed = false;
+    SimpleSoundManager().stopBackgroundMusic();
+    print('DEBUG: Starting friend game');
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const ChessGameScreen(aiEnabled: false),
+      ),
+    ).then((_) {
+      if (!_isMusicResumed) {
+        SimpleSoundManager().resumeBackgroundMusic();
+        _isMusicResumed = true;
+      }
+    });
   }
 }
