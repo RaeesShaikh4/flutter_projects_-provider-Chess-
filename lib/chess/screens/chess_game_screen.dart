@@ -7,12 +7,11 @@ import '../game/chess_game.dart';
 import '../ai/level_chess_ai.dart';
 import '../widgets/chess_board.dart';
 import '../utils/simple_sound_manager.dart';
-import 'welcome_screen.dart';
 
 class ChessGameScreen extends StatefulWidget {
   final ChessLevel? level;
   final Function(bool)? onLevelComplete;
-  final bool aiEnabled; // true = play vs AI (black), false = play with friend
+  final bool aiEnabled; 
 
   const ChessGameScreen({
     super.key,
@@ -36,7 +35,6 @@ class _ChessGameScreenState extends State<ChessGameScreen>
   Position? lastMoveTo;
   ChessLevel? currentLevel;
 
-  // Animation controllers
   late AnimationController _fadeController;
   late AnimationController _slideController;
   late Animation<double> _fadeAnimation;
@@ -80,7 +78,6 @@ class _ChessGameScreenState extends State<ChessGameScreen>
     if (game.gameState != GameState.playing) return;
     if (isAITurn) return;
 
-    // If from and to are the same, it's a selection/deselection
     if (from == to) {
       setState(() {
         if (selectedPosition == from) {
@@ -97,14 +94,11 @@ class _ChessGameScreenState extends State<ChessGameScreen>
       return;
     }
 
-    // Make the move
-    // Capture detection must be performed before move execution
+
     final wasCapture = game.getPieceAt(to) != null;
     if (game.makeMove(from, to)) {
-      // Play appropriate sound based on move type
       final piece = game.getPieceAt(to);
       
-      // Check for castling
       if (piece?.type == PieceType.king && (to.col - from.col).abs() == 2) {
         SimpleSoundManager().playCastleSound();
       } else if (wasCapture) {
@@ -120,18 +114,15 @@ class _ChessGameScreenState extends State<ChessGameScreen>
         validMoves = [];
       });
 
-      // Check if game is over
       if (game.gameState != GameState.playing) {
         _showGameEndDialog();
         return;
       }
 
-      // AI's turn (only when enabled)
       if (widget.aiEnabled && game.currentPlayer == PieceColor.black) {
         _makeAIMove();
       }
     } else {
-      // Play error sound for invalid move
       SimpleSoundManager().playErrorSound();
     }
   }
@@ -141,17 +132,13 @@ class _ChessGameScreenState extends State<ChessGameScreen>
       isAITurn = true;
     });
 
-    // Add a small delay to make AI move visible
     await Future.delayed(const Duration(milliseconds: 800));
 
     final aiMove = ai.getBestMove(game);
     if (aiMove != null && game.makeMove(aiMove.from, aiMove.to)) {
-      // Play appropriate sound based on AI move type
       final piece = game.getPieceAt(aiMove.to);
-      // captured detection already occurred before move; infer by moveHistory
       final wasCapture = game.moveHistory.isNotEmpty && game.moveHistory.last.to == aiMove.to && game.moveHistory.last.capturedPiece != null;
       
-      // Check for castling
       if (piece?.type == PieceType.king && (aiMove.to.col - aiMove.from.col).abs() == 2) {
         SimpleSoundManager().playCastleSound();
       } else if (wasCapture) {
@@ -166,7 +153,6 @@ class _ChessGameScreenState extends State<ChessGameScreen>
         isAITurn = false;
       });
 
-      // Check if game is over
       if (game.gameState != GameState.playing) {
         _showGameEndDialog();
       }
@@ -185,18 +171,27 @@ class _ChessGameScreenState extends State<ChessGameScreen>
 
     switch (game.gameState) {
       case GameState.checkmate:
+        // Logic for checkmate
         // Player wins if the AI (black) is checkmated
         // If it's Black's turn and Black is checkmated, White (player) wins
         // If it's White's turn and White is checkmated, Black (AI) wins
-        playerWon = game.currentPlayer == PieceColor.black;
-        print('DEBUG: Checkmate detected. Current player: ${game.currentPlayer}');
-        print('DEBUG: Since currentPlayer is Black and Black is checkmated, White (player) wins: $playerWon');
-        message = playerWon
-            ? 'Congratulations! You won by checkmate!'
-            : 'AI wins by checkmate!';
-        dialogColor = playerWon ? Colors.green : Colors.red;
-        dialogIcon = Icons.emoji_events;
-        // Play checkmate sound
+        if (!widget.aiEnabled) {
+          // Human vs Human: label winners as Player 1 (White) / Player 2 (Black)
+          final isWhiteCheckmated = game.currentPlayer == PieceColor.white;
+          final winnerLabel = isWhiteCheckmated ? 'Player 2 (Black)' : 'Player 1 (White)';
+          message = '$winnerLabel wins by checkmate!';
+          dialogColor = Colors.green;
+          dialogIcon = Icons.emoji_events;
+        } else {
+          playerWon = game.currentPlayer == PieceColor.black;
+          print('DEBUG: Checkmate detected. Current player: ${game.currentPlayer}');
+          print('DEBUG: Since currentPlayer is Black and Black is checkmated, White (player) wins: $playerWon');
+          message = playerWon
+              ? 'Congratulations! You won by checkmate!'
+              : 'AI wins by checkmate!';
+          dialogColor = playerWon ? Colors.green : Colors.red;
+          dialogIcon = Icons.emoji_events;
+        }
         SimpleSoundManager().playCheckmateSound();
         break;
       case GameState.stalemate:
@@ -210,14 +205,12 @@ class _ChessGameScreenState extends State<ChessGameScreen>
         message = 'Draw!';
         dialogColor = Colors.blue;
         dialogIcon = Icons.balance;
-        // Play game draw sound
         SimpleSoundManager().playGameDrawSound();
         break;
       case GameState.playing:
         return;
     }
 
-    // Call the level completion callback if provided
     print('DEBUG: Game ended. playerWon: $playerWon, gameState: ${game.gameState}');
     if (widget.onLevelComplete != null) {
       print('DEBUG: Calling onLevelComplete with won: $playerWon');
@@ -225,10 +218,8 @@ class _ChessGameScreenState extends State<ChessGameScreen>
     }
 
 
-    // Dialog and navigation behavior differ for level mode vs quick/friend mode
     final isLevelMode = widget.level != null;
     if (!isLevelMode) {
-      // Friend or quick play: single dialog, single pop
       showDialog(
         context: context,
         barrierDismissible: false,
@@ -237,15 +228,14 @@ class _ChessGameScreenState extends State<ChessGameScreen>
           dialogColor: dialogColor,
           icon: dialogIcon,
           onClose: () {
-            Navigator.of(context).pop(); // close dialog
-            Navigator.of(context).pop(); // back to previous screen
+            Navigator.of(context).pop(); 
+            Navigator.of(context).pop();
           },
         ),
       );
       return;
     }
 
-    // Level mode
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -256,8 +246,8 @@ class _ChessGameScreenState extends State<ChessGameScreen>
             dialogColor: dialogColor,
             icon: dialogIcon,
             onClose: () {
-              Navigator.of(context).pop(); // close dialog
-              Navigator.of(context).pop(); // Go back to level selection
+              Navigator.of(context).pop();
+              Navigator.of(context).pop();
             },
           ),
     );
@@ -335,10 +325,8 @@ class _ChessGameScreenState extends State<ChessGameScreen>
                   child: Column(
                     children: [
                       SizedBox(height: 10.h),
-                      // Game status
                       _buildGameStatus(),
                   
-                      // Chess board
                       Expanded(
                         child: Center(
                           child: Padding(
@@ -355,7 +343,6 @@ class _ChessGameScreenState extends State<ChessGameScreen>
                         ),
                       ),
                   
-                      // Game controls
                       _buildAnimatedControls(),
                     ],
                   ),
@@ -396,7 +383,6 @@ class _ChessGameScreenState extends State<ChessGameScreen>
       ),
       child: Column(
         children: [
-          // Chess title
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -435,7 +421,6 @@ class _ChessGameScreenState extends State<ChessGameScreen>
             ],
           ),
           SizedBox(height: 10.h),
-          // Game status
           Container(
                 margin: EdgeInsets.only(top: 5.h),
                 padding:
@@ -571,7 +556,7 @@ class _ChessGameScreenState extends State<ChessGameScreen>
       }
     }
     if (!widget.aiEnabled) {
-      return Icons.person; // neutral person icon for 2-player mode
+      return Icons.person;
     }
     return game.currentPlayer == PieceColor.white ? Icons.person : Icons.smart_toy;
   }
@@ -580,6 +565,13 @@ class _ChessGameScreenState extends State<ChessGameScreen>
     if (game.gameState != GameState.playing) {
       switch (game.gameState) {
         case GameState.checkmate:
+          if (!widget.aiEnabled) {
+            // Human vs Human labels
+            final isWhiteCheckmated = game.currentPlayer == PieceColor.white;
+            return isWhiteCheckmated
+                ? 'Black wins by checkmate!'
+                : 'White wins by checkmate!';
+          }
           return game.currentPlayer == PieceColor.white
               ? 'Black wins by checkmate!'
               : 'White wins by checkmate!';
@@ -600,7 +592,6 @@ class _ChessGameScreenState extends State<ChessGameScreen>
           ? 'Your turn (White)'
           : 'AI turn (Black)';
     } else {
-      // Friend mode
       return game.currentPlayer == PieceColor.white
           ? 'White to move'
           : 'Black to move';
@@ -649,7 +640,6 @@ class _ChessGameScreenState extends State<ChessGameScreen>
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // Animated trophy icon
               TweenAnimationBuilder<double>(
                 duration: const Duration(milliseconds: 1000),
                 tween: Tween(begin: 0.0, end: 1.0),
@@ -674,7 +664,6 @@ class _ChessGameScreenState extends State<ChessGameScreen>
               
               SizedBox(height: 20.h),
               
-              // Congratulations text
               TweenAnimationBuilder<double>(
                 duration: const Duration(milliseconds: 800),
                 tween: Tween(begin: 0.0, end: 1.0),
@@ -720,7 +709,6 @@ class _ChessGameScreenState extends State<ChessGameScreen>
               
               SizedBox(height: 30.h),
               
-              // Continue button
               TweenAnimationBuilder<double>(
                 duration: const Duration(milliseconds: 1200),
                 tween: Tween(begin: 0.0, end: 1.0),
@@ -734,8 +722,8 @@ class _ChessGameScreenState extends State<ChessGameScreen>
                         height: 50.h,
                         child: ElevatedButton(
                           onPressed: () {
-          Navigator.of(context).pop();
-                            Navigator.of(context).pop(); // Go back to level selection
+                            Navigator.of(context).pop();
+                            Navigator.of(context).pop();
                           },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.white,

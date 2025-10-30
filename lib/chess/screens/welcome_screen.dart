@@ -105,12 +105,8 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                   opacity: _fadeAnimation,
                   child: Column(
                     children: [
-                      // Header section
                       _buildHeader(),
 
-                      // const SizedBox(height: 20),
-
-                      // Main content
                       Expanded(
                         child: SingleChildScrollView(
                           child: Padding(
@@ -118,17 +114,14 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                // Chess board preview
                                 _buildChessPreview(),
 
                                 SizedBox(height: 30.h),
 
-                                // Title and description
                                 _buildTitleSection(),
 
                                 SizedBox(height: 40.h),
 
-                                // Play buttons
                                 _buildPlayButtons(),
 
                                 SizedBox(height: 20.h),
@@ -181,7 +174,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                 _openSettings();
               },
               child: Container(
-                padding: EdgeInsets.all(8.r), // Increased padding
+                padding: EdgeInsets.all(8.r),
                 decoration: BoxDecoration(
                   color: Colors.brown[700]!.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(20.r),
@@ -189,7 +182,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                 child: Icon(
                   Icons.settings,
                   color: Colors.brown[700],
-                  size: 24.sp, // Larger icon
+                  size: 24.sp,
                 ),
               ),
             ),
@@ -273,7 +266,6 @@ class _WelcomeScreenState extends State<WelcomeScreen>
   }
 
   Widget? _getPreviewPiece(int row, int col) {
-    // Show some chess pieces in the preview
     if (row == 1) {
       return Text('♟',
           style: TextStyle(fontSize: 12.sp, color: Colors.black));
@@ -330,150 +322,145 @@ class _WelcomeScreenState extends State<WelcomeScreen>
   }
 
   Widget _buildPlayButtons() {
-    return SlideTransition(
-      position: Tween<Offset>(
-        begin: const Offset(0, 0.3),
-        end: Offset.zero,
-      ).animate(_slideAnimation),
-      child: Column(
-        children: [
-          // Quick Play button
-          AnimatedBuilder(
-            animation: _pulseAnimation,
-            builder: (context, child) {
-              return Transform.scale(
-                scale: _pulseAnimation.value,
-                child: Container(
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [Colors.brown[700]!, Colors.brown[800]!],
-                    ),
-                    borderRadius: BorderRadius.circular(30.r),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.brown[700]!.withOpacity(0.4),
-                        blurRadius: 15.r,
-                        offset: Offset(0, 8.h),
-                      ),
-                    ],
-                  ),
-                  child: Material(
-                    color: Colors.transparent,
-                    child: InkWell(
-                      onTap: _startGame,
-                      borderRadius: BorderRadius.circular(30.r),
-                      child: Container(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: 32.w, vertical: 14.h),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              Icons.play_arrow,
-                              color: Colors.white,
-                              size: 28.sp,
-                            ),
-                            SizedBox(width: 12.w),
-                            Text(
-                              'QUICK PLAY',
-                              style: TextStyle(
-                                fontSize: 18.sp,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                                letterSpacing: 1,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              );
-            },
-          ),
-
-          SizedBox(height: 16.h),
-
-          // Levels button
-          AnimatedBuilder(
-            animation: _pulseAnimation,
-            builder: (context, child) {
-              return Transform.scale(
-                scale: _pulseAnimation.value * 0.95 + 0.05,
-                child: Container(
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [Colors.blue[600]!, Colors.blue[800]!],
-                    ),
-                    borderRadius: BorderRadius.circular(30.r),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.blue[600]!.withOpacity(0.4),
-                        blurRadius: 15.r,
-                        offset: Offset(0, 8.h),
-                      ),
-                    ],
-                  ),
-                  child: Material(
-                    color: Colors.transparent,
-                    child: InkWell(
-                      onTap: _startLevels,
-                      borderRadius: BorderRadius.circular(30.r),
-                      child: Container(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: 32.w, vertical: 14.h),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              Icons.emoji_events,
-                              color: Colors.white,
-                              size: 28.sp,
-                            ),
-                            SizedBox(width: 12.w),
-                            Text(
-                              'LEVELS (100)',
-                              style: TextStyle(
-                                fontSize: 18.sp,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                                letterSpacing: 1,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              );
-            },
-          ),
-
-          SizedBox(height: 16.h),
-
-          // Play with Friend button (no animation)
-          Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [Colors.green[600]!, Colors.green[800]!],
-              ),
-              borderRadius: BorderRadius.circular(30.r),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.green[600]!.withOpacity(0.4),
-                  blurRadius: 15.r,
-                  offset: Offset(0, 8.h),
-                ),
-              ],
+    return Column(
+      children: [
+        SlideTransition(
+          transformHitTests: true,
+          position: Tween<Offset>(
+            begin: const Offset(0, 0.3),
+            end: Offset.zero,
+          ).animate(_slideAnimation),
+          child: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Colors.brown[700]!, Colors.brown[800]!],
             ),
+            borderRadius: BorderRadius.circular(30.r),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.brown[700]!.withOpacity(0.4),
+                blurRadius: 15.r,
+                offset: Offset(0, 8.h),
+              ),
+            ],
+          ),
+          child: Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: _startGame,
+              borderRadius: BorderRadius.circular(30.r),
+              child: Container(
+                padding: EdgeInsets.symmetric(horizontal: 32.w, vertical: 14.h),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.play_arrow,
+                      color: Colors.white,
+                      size: 28.sp,
+                    ),
+                    SizedBox(width: 12.w),
+                    Text(
+                      'QUICK PLAY',
+                      style: TextStyle(
+                        fontSize: 18.sp,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                        letterSpacing: 1,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          ),
+        ),
+
+        SizedBox(height: 16.h),
+
+        SlideTransition(
+          transformHitTests: true,
+          position: Tween<Offset>(
+            begin: const Offset(0, 0.3),
+            end: Offset.zero,
+          ).animate(_slideAnimation),
+          child: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Colors.blue[600]!, Colors.blue[800]!],
+            ),
+            borderRadius: BorderRadius.circular(30.r),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.blue[600]!.withOpacity(0.4),
+                blurRadius: 15.r,
+                offset: Offset(0, 8.h),
+              ),
+            ],
+          ),
+          child: Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: _startLevels,
+              borderRadius: BorderRadius.circular(30.r),
+              child: Container(
+                padding: EdgeInsets.symmetric(horizontal: 32.w, vertical: 14.h),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.emoji_events,
+                      color: Colors.white,
+                      size: 28.sp,
+                    ),
+                    SizedBox(width: 12.w),
+                    Text(
+                      'LEVELS (100)',
+                      style: TextStyle(
+                        fontSize: 18.sp,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                        letterSpacing: 1,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          ),
+        ),
+
+        SizedBox(height: 16.h),
+
+        SlideTransition(
+          transformHitTests: true,
+          position: Tween<Offset>(
+            begin: const Offset(0, 0.3),
+            end: Offset.zero,
+          ).animate(_slideAnimation),
+          child: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Colors.green[600]!, Colors.green[800]!],
+            ),
+            borderRadius: BorderRadius.circular(30.r),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.green[600]!.withOpacity(0.4),
+                blurRadius: 15.r,
+                offset: Offset(0, 8.h),
+              ),
+            ],
+          ),
+          child: Material(
+            color: Colors.transparent,
             child: InkWell(
               onTap: _startFriendGame,
               borderRadius: BorderRadius.circular(30.r),
               child: Container(
-                padding: EdgeInsets.symmetric(
-                    horizontal: 32.w, vertical: 14.h),
+                padding: EdgeInsets.symmetric(horizontal: 32.w, vertical: 14.h),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -497,8 +484,9 @@ class _WelcomeScreenState extends State<WelcomeScreen>
               ),
             ),
           ),
-        ],
-      ),
+          ),
+        ),
+      ],
     );
   }
 

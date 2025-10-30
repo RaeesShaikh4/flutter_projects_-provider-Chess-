@@ -104,18 +104,15 @@ class _LevelSelectionScreenState extends State<LevelSelectionScreen>
                   opacity: _fadeAnimation,
                   child: Column(
                     children: [
-                      // Header
                       SizedBox(height: 10.h),
                       _buildHeader(),
                           
                       SizedBox(height: 10.h),
                           
-                      // Progress indicator
                       _buildProgressIndicator(),
                           
                       SizedBox(height: 10.h),
                           
-                      // Level grid
                       Expanded(
                         child: _buildLevelGrid(),
                       ),
@@ -224,7 +221,6 @@ class _LevelSelectionScreenState extends State<LevelSelectionScreen>
                       ),
                     ),
                     SizedBox(width: 8.w),
-                    // Reset button integrated into progress indicator
                     GestureDetector(
                       onTap: () async {
                         print('DEBUG: Reset button pressed from progress indicator');
@@ -320,7 +316,6 @@ class _LevelSelectionScreenState extends State<LevelSelectionScreen>
       animation: _pulseAnimation,
       builder: (context, child) {
         return Container(
-          // Add padding to prevent clipping during scale animation
           padding: EdgeInsets.all(2.r),
           child: Transform.scale(
             scale: isUnlocked ? _pulseAnimation.value : 1.0,
@@ -410,7 +405,6 @@ class _LevelSelectionScreenState extends State<LevelSelectionScreen>
       return [Colors.green[400]!, Colors.green[600]!];
     }
 
-    // Color based on difficulty
     switch (level.aiDifficulty) {
       case 1:
       case 2:
@@ -452,7 +446,6 @@ class _LevelSelectionScreenState extends State<LevelSelectionScreen>
         ),
       ),
     ).then((_) {
-      // Always refresh the level selection when returning from game
       _loadUnlockedLevel();
     });
   }
